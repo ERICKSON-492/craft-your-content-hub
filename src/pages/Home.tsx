@@ -3,46 +3,51 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, Hammer, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import hood from "@/assets/hood-1.png.asset.json";
-import worktop from "@/assets/worktop-undershelf.png.asset.json";
-import dishwasher from "@/assets/dishwasher-2.png.asset.json";
-import coldroom from "@/assets/coldroom-1.png.asset.json";
-import grease from "@/assets/grease-trap.png.asset.json";
-import rack from "@/assets/rack-system.png.asset.json";
-import meat from "@/assets/meat-trolley.png.asset.json";
-import sink from "@/assets/sink-triple.png.asset.json";
-import sectionHero from "@/assets/section-hero.jpg.asset.json";
 
-const heroSlides = [hood.url, worktop.url, dishwasher.url, coldroom.url, sink.url, rack.url];
+// 1. FIXED: Import the images directly as standard paths instead of metadata JSON files
+import hood from "@/assets/hood-1.png";
+import worktop from "@/assets/worktop-undershelf.png";
+import dishwasher from "@/assets/dishwasher-2.png";
+import coldroom from "@/assets/coldroom-1.png";
+import grease from "@/assets/grease-trap.png";
+import rack from "@/assets/rack-system.png";
+import meat from "@/assets/meat-trolley.png";
+import sink from "@/assets/sink-triple.png";
+import sectionHero from "@/assets/section-hero.jpg";
+
+const heroSlides = [hood, worktop, dishwasher, coldroom, sink, rack];
 
 type Service = { title: string; desc: string; image: string };
 
 const defaultServices: Service[] = [
-  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.", image: worktop.url },
-  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.", image: hood.url },
-  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal.", image: rack.url },
-  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance.", image: coldroom.url },
-  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat.url },
+  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.", image: worktop },
+  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.", image: hood },
+  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal.", image: rack },
+  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance.", image: coldroom },
+  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat },
 ];
 
+// 2. RESTORED: Your original products created by Lovable, now bound to stable image paths
 const products = [
-  { tag: "FABRICATION", title: "Work Tables // Prep Units", desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.", img: worktop.url },
-  { tag: "HYDRATION", title: "Sinks // Sanitization", desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.", img: sink.url },
-  { tag: "VENTILATION", title: "Exhaust Systems", desc: "High-velocity architectural canopy hoods engineered to meet strict HVAC extraction and air balancing mandates.", img: hood.url },
-  { tag: "CONTAINMENT", title: "Shelves & Storage Matrix", desc: "Wall-mounted storage panels, high-clearance freestanding equipment towers, and ventilated racks.", img: rack.url },
-  { tag: "CRYOGENIC", title: "Cold Room Frameworks", desc: "High-rigidity shelving units optimized for low-temperature airflow circulation and maximum sub-zero hygiene.", img: coldroom.url },
-  { tag: "WAREWASHING", title: "Warewashing Systems", desc: "Integrated dirty-intake landing stations and high-output clean outfeed table assemblies.", img: dishwasher.url },
-  { tag: "BUTCHERY", title: "Logistics Trolleys & Rails", desc: "Heavy structural rolling transport solutions and structural ceiling conveyor infrastructure items.", img: meat.url },
-  { tag: "DRAINAGE", title: "Effluent Management Systems", desc: "Solid particle flow interceptors and continuous heavy-gauge drainage solutions.", img: grease.url },
+  { tag: "FABRICATION", title: "Work Tables // Prep Units", desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.", img: worktop },
+  { tag: "HYDRATION", title: "Sinks // Sanitization", desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.", img: sink },
+  { tag: "VENTILATION", title: "Exhaust Systems", desc: "High-velocity architectural canopy hoods engineered to meet strict HVAC extraction and air balancing mandates.", img: hood },
+  { tag: "CONTAINMENT", title: "Shelves & Storage Matrix", desc: "Wall-mounted storage panels, high-clearance freestanding equipment towers, and ventilated racks.", img: rack },
+  { tag: "CRYOGENIC", title: "Cold Room Frameworks", desc: "High-rigidity shelving units optimized for low-temperature airflow circulation and maximum sub-zero hygiene.", img: coldroom },
+  { tag: "WAREWASHING", title: "Warewashing Systems", desc: "Integrated dirty-intake landing stations and high-output clean outfeed table assemblies.", img: dishwasher },
+  { tag: "BUTCHERY", title: "Logistics Trolleys & Rails", desc: "Heavy structural rolling transport solutions and structural ceiling conveyor infrastructure items.", img: meat },
+  { tag: "DRAINAGE", title: "Effluent Management Systems", desc: "Solid particle flow interceptors and continuous heavy-gauge drainage solutions.", img: grease },
 ];
 
 export default function Home() {
   const [slide, setSlide] = useState(0);
   const [services, setServices] = useState<Service[]>(defaultServices);
+  
   useEffect(() => {
     const id = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 4500);
     return () => clearInterval(id);
   }, []);
+
   useEffect(() => {
     supabase
       .from("services")
@@ -162,7 +167,7 @@ export default function Home() {
       {/* INSIDE THE WORKSHOP */}
       <section
         className="relative bg-cover bg-center"
-        style={{ backgroundImage: `linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.9)), url(${sectionHero.url})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.9)), url(${sectionHero})` }}
       >
         <div className="mx-auto grid max-w-7xl gap-12 px-6 py-24 md:grid-cols-2 text-white">
           <div>
