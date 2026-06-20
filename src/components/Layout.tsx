@@ -19,7 +19,8 @@ export default function Layout() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src={logo.url} alt="Elite Stainless Steel Concepts" className="h-10 w-auto object-contain" />
+            {/* Cleaned: src={logo} instead of logo.url */}
+            <img src={logo} alt="Elite Stainless Steel Concepts" className="h-10 w-auto object-contain" />
             <span className="hidden sm:flex flex-col leading-tight">
               <span className="text-sm font-bold tracking-tight">ELITE STAINLESS</span>
             </span>
@@ -80,7 +81,8 @@ export default function Layout() {
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-4">
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo.url} alt="Elite Stainless" className="h-12 w-auto object-contain" />
+              {/* Cleaned: src={logo} instead of logo.url */}
+              <img src={logo} alt="Elite Stainless" className="h-12 w-auto object-contain" />
             </Link>
             <p className="mt-4 text-sm text-slate-400 leading-relaxed">
               Premium stainless steel fabrication for commercial kitchens, refrigeration
