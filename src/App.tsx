@@ -11,6 +11,7 @@ import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import Admin from "@/pages/admin/Admin";
 import AdminContent from "@/pages/admin/AdminContent";
+import AdminServices from "@/pages/admin/AdminServices";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminProjects from "@/pages/admin/AdminProjects";
 import AdminMessages from "@/pages/admin/AdminMessages";
@@ -38,6 +39,7 @@ export default function App() {
           }
         >
           <Route index element={<AdminContent />} />
+          <Route path="services" element={<AdminServices />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="projects" element={<AdminProjects />} />
           <Route path="messages" element={<AdminMessages />} />

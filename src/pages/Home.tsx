@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Wrench, Hammer, Phone, Mail } from "lucide-react";
+import { ArrowRight, ShieldCheck, Hammer, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 import hood from "@/assets/hood-1.png.asset.json";
 import worktop from "@/assets/worktop-undershelf.png.asset.json";
 import dishwasher from "@/assets/dishwasher-2.png.asset.json";
@@ -14,12 +15,14 @@ import sectionHero from "@/assets/section-hero.jpg.asset.json";
 
 const heroSlides = [hood.url, worktop.url, dishwasher.url, coldroom.url, sink.url, rack.url];
 
-const services = [
-  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs." },
-  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses." },
-  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal." },
-  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance." },
-  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance." },
+type Service = { title: string; desc: string; image: string };
+
+const defaultServices: Service[] = [
+  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.", image: worktop.url },
+  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.", image: hood.url },
+  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal.", image: rack.url },
+  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance.", image: coldroom.url },
+  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat.url },
 ];
 
 const products = [
@@ -35,9 +38,27 @@ const products = [
 
 export default function Home() {
   const [slide, setSlide] = useState(0);
+  const [services, setServices] = useState<Service[]>(defaultServices);
   useEffect(() => {
     const id = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 4500);
     return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    supabase
+      .from("services")
+      .select("title,description,image_url")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length) {
+          setServices(
+            data.map((r: any) => ({
+              title: r.title,
+              desc: r.description ?? "",
+              image: r.image_url ?? "",
+            })),
+          );
+        }
+      });
   }, []);
 
   return (
@@ -123,12 +144,16 @@ export default function Home() {
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
-            <div key={s.title} className="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary hover:shadow-lg">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Wrench className="h-5 w-5" />
+            <div key={s.title} className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg">
+              <div className="aspect-[4/3] overflow-hidden bg-muted">
+                {s.image ? (
+                  <img src={s.image} alt={s.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                ) : null}
               </div>
-              <h3 className="mt-5 text-xl font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
             </div>
           ))}
         </div>

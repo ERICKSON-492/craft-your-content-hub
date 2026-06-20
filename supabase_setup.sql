@@ -106,3 +106,22 @@ create policy "admins delete messages" on public.contact_messages
 --   insert into public.user_roles (user_id, role)
 --   values ('<paste-user-id-from-auth.users>', 'admin');
 -- ============================================================
+
+-- 6. SERVICES (home page "From concept to installation" cards) ---
+create table if not exists public.services (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  image_url text,
+  sort_order int not null default 0,
+  created_at timestamptz default now()
+);
+grant select on public.services to anon, authenticated;
+grant all on public.services to authenticated, service_role;
+alter table public.services enable row level security;
+
+create policy "anyone reads services" on public.services for select using (true);
+create policy "admins write services" on public.services
+  for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
