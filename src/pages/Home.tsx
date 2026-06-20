@@ -4,16 +4,27 @@ import { ArrowRight, ShieldCheck, Hammer, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
-// 1. FIXED: Import the images directly as standard paths instead of metadata JSON files
-import hood from "@/assets/hood-1.png";
-import worktop from "@/assets/worktop-undershelf.png";
-import dishwasher from "@/assets/dishwasher-2.png";
-import coldroom from "@/assets/coldroom-1.png";
-import grease from "@/assets/grease-trap.png";
-import rack from "@/assets/rack-system.png";
-import meat from "@/assets/meat-trolley.png";
-import sink from "@/assets/sink-triple.png";
-import sectionHero from "@/assets/section-hero.jpg";
+// 1. Import Lovable's JSON asset files (This matches your original working setup)
+import hoodData from "@/assets/hood-1.png.asset.json";
+import worktopData from "@/assets/worktop-undershelf.png.asset.json";
+import dishwasherData from "@/assets/dishwasher-2.png.asset.json";
+import coldroomData from "@/assets/coldroom-1.png.asset.json";
+import greaseData from "@/assets/grease-trap.png.asset.json";
+import rackData from "@/assets/rack-system.png.asset.json";
+import meatData from "@/assets/meat-trolley.png.asset.json";
+import sinkData from "@/assets/sink-triple.png.asset.json";
+import sectionHeroData from "@/assets/section-hero.jpg.asset.json";
+
+// Extract URLs safely with a fallback if they look different in production builds
+const hood = hoodData?.url || "/assets/hood-1.png";
+const worktop = worktopData?.url || "/assets/worktop-undershelf.png";
+const dishwasher = dishwasherData?.url || "/assets/dishwasher-2.png";
+const coldroom = coldroomData?.url || "/assets/coldroom-1.png";
+const grease = greaseData?.url || "/assets/grease-trap.png";
+const rack = rackData?.url || "/assets/rack-system.png";
+const meat = meatData?.url || "/assets/meat-trolley.png";
+const sink = sinkData?.url || "/assets/sink-triple.png";
+const sectionHero = sectionHeroData?.url || "/assets/section-hero.jpg";
 
 const heroSlides = [hood, worktop, dishwasher, coldroom, sink, rack];
 
@@ -27,7 +38,7 @@ const defaultServices: Service[] = [
   { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat },
 ];
 
-// 2. RESTORED: Your original products created by Lovable, now bound to stable image paths
+// 2. Your exact original Lovable items using the resolved asset URLs
 const products = [
   { tag: "FABRICATION", title: "Work Tables // Prep Units", desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.", img: worktop },
   { tag: "HYDRATION", title: "Sinks // Sanitization", desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.", img: sink },
