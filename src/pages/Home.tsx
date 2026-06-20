@@ -38,9 +38,27 @@ const products = [
 
 export default function Home() {
   const [slide, setSlide] = useState(0);
+  const [services, setServices] = useState<Service[]>(defaultServices);
   useEffect(() => {
     const id = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 4500);
     return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    supabase
+      .from("services")
+      .select("title,description,image_url")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length) {
+          setServices(
+            data.map((r: any) => ({
+              title: r.title,
+              desc: r.description ?? "",
+              image: r.image_url ?? "",
+            })),
+          );
+        }
+      });
   }, []);
 
   return (
