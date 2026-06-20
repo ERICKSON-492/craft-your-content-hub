@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Wrench, Hammer, Phone, Mail } from "lucide-react";
+import { ArrowRight, ShieldCheck, Hammer, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 import hood from "@/assets/hood-1.png.asset.json";
 import worktop from "@/assets/worktop-undershelf.png.asset.json";
 import dishwasher from "@/assets/dishwasher-2.png.asset.json";
@@ -14,12 +15,14 @@ import sectionHero from "@/assets/section-hero.jpg.asset.json";
 
 const heroSlides = [hood.url, worktop.url, dishwasher.url, coldroom.url, sink.url, rack.url];
 
-const services = [
-  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs." },
-  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses." },
-  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal." },
-  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance." },
-  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance." },
+type Service = { title: string; desc: string; image: string };
+
+const defaultServices: Service[] = [
+  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.", image: worktop.url },
+  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.", image: hood.url },
+  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal.", image: rack.url },
+  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance.", image: coldroom.url },
+  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat.url },
 ];
 
 const products = [
