@@ -39,6 +39,7 @@ export default function App() {
           }
         >
           <Route index element={<AdminContent />} />
+          <Route path="services" element={<AdminServices />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="projects" element={<AdminProjects />} />
           <Route path="messages" element={<AdminMessages />} />
