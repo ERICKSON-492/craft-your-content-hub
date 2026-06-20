@@ -2,7 +2,7 @@ import { Outlet, NavLink, Link } from "react-router-dom";
 import { Phone, Mail, MapPin, LogIn, ShieldCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/elite-logo.png.asset.json";
+import logo from "@/assets/elite-logo.png";
 
 const nav = [
   { to: "/", label: "Home", end: true },
