@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { Phone, Mail, MapPin, LogIn, ShieldCheck, LogOut } from "lucide-react";
+import { Phone, Mail, MapPin, ShieldCheck, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/elite-logo.png";
@@ -14,12 +15,12 @@ const nav = [
 
 export default function Layout() {
   const { user, isAdmin, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            {/* Cleaned: src={logo} instead of logo.url */}
+          <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setOpen(false)}>
             <img src={logo} alt="Elite Stainless Steel Concepts" className="h-10 w-auto object-contain" />
             <span className="hidden sm:flex flex-col leading-tight">
               <span className="text-sm font-bold tracking-tight">ELITE STAINLESS</span>
@@ -46,32 +47,74 @@ export default function Layout() {
               <Phone className="h-4 w-4 text-primary" />
               +254 794 872 338
             </a>
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Button asChild size="sm" variant="outline">
+            {user && isAdmin && (
+              <Button asChild size="sm" variant="outline" className="hidden sm:inline-flex">
+                <Link to="/admin">
+                  <ShieldCheck className="mr-1 h-4 w-4" /> Admin
+                </Link>
+              </Button>
+            )}
+            {user && (
+              <Button size="sm" variant="ghost" onClick={() => signOut()} className="hidden sm:inline-flex">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
+            <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Link to="/contact">Get a Quote</Link>
+            </Button>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Toggle navigation"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        {open && (
+          <div className="md:hidden border-t border-border bg-background">
+            <nav className="mx-auto flex max-w-7xl flex-col px-4 py-3 sm:px-6">
+              {nav.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    `py-2.5 text-sm border-b border-border/60 last:border-0 ${
+                      isActive ? "text-primary font-medium" : "text-foreground"
+                    }`
+                  }
+                >
+                  {n.label}
+                </NavLink>
+              ))}
+              <div className="mt-3 flex flex-col gap-2">
+                <Button asChild size="sm" onClick={() => setOpen(false)}>
+                  <Link to="/contact">Get a Quote</Link>
+                </Button>
+                {user && isAdmin && (
+                  <Button asChild size="sm" variant="outline" onClick={() => setOpen(false)}>
                     <Link to="/admin">
                       <ShieldCheck className="mr-1 h-4 w-4" /> Admin
                     </Link>
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={() => signOut()}>
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </>
-            ) : (
-              <Button asChild size="sm" variant="outline">
-                <Link to="/login">
-                  <LogIn className="mr-1 h-4 w-4" /> Login
-                </Link>
-              </Button>
-            )}
-            <Button asChild size="sm">
-              <Link to="/contact">Get a Quote</Link>
-            </Button>
+                {user && (
+                  <Button size="sm" variant="ghost" onClick={() => { signOut(); setOpen(false); }}>
+                    <LogOut className="mr-1 h-4 w-4" /> Sign out
+                  </Button>
+                )}
+                <a href="tel:+254794872338" className="mt-2 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4 text-primary" /> +254 794 872 338
+                </a>
+              </div>
+            </nav>
           </div>
-        </div>
+        )}
       </header>
+
 
       <main className="flex-1">
         <Outlet />
