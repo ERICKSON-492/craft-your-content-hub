@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Trash2, ArrowUp, ArrowDown, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface Service {
@@ -15,9 +15,22 @@ interface Service {
   sort_order: number;
 }
 
+const BUCKET = "site-images";
+
+async function uploadImage(file: File, folder: string): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export default function AdminServices() {
   const [items, setItems] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [replacingId, setReplacingId] = useState<string | null>(null);
 
   async function load() {
     const { data } = await supabase
@@ -27,20 +40,28 @@ export default function AdminServices() {
     setItems(data ?? []);
     setLoading(false);
   }
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setUploading(true);
     const fd = new FormData(e.currentTarget);
+    const file = fd.get("image_file") as File;
+    let image_url: string | null = null;
+    try {
+      if (file && file.size > 0) image_url = await uploadImage(file, "services");
+    } catch (err: any) {
+      setUploading(false);
+      return toast.error(`Upload failed: ${err.message}`);
+    }
     const nextOrder = items.length ? Math.max(...items.map((i) => i.sort_order)) + 1 : 0;
     const { error } = await supabase.from("services").insert({
       title: fd.get("title"),
       description: fd.get("description"),
-      image_url: fd.get("image_url"),
+      image_url,
       sort_order: nextOrder,
     });
+    setUploading(false);
     if (error) return toast.error(error.message);
     (e.target as HTMLFormElement).reset();
     toast.success("Service added");
@@ -57,6 +78,19 @@ export default function AdminServices() {
     const { error } = await supabase.from("services").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     setItems((arr) => arr.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+  }
+
+  async function replaceImage(id: string, file: File) {
+    setReplacingId(id);
+    try {
+      const url = await uploadImage(file, "services");
+      await updateField(id, { image_url: url });
+      toast.success("Image updated");
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setReplacingId(null);
+    }
   }
 
   async function move(idx: number, dir: -1 | 1) {
@@ -87,15 +121,17 @@ export default function AdminServices() {
           <Input name="title" required />
         </div>
         <div>
-          <Label>Image URL</Label>
-          <Input name="image_url" placeholder="https://… or /__l5e/…" />
+          <Label>Image</Label>
+          <Input name="image_file" type="file" accept="image/*" />
         </div>
         <div className="md:col-span-2">
           <Label>Description</Label>
           <Textarea name="description" rows={3} />
         </div>
         <div className="md:col-span-2">
-          <Button type="submit">Add service</Button>
+          <Button type="submit" disabled={uploading}>
+            {uploading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</>) : "Add service"}
+          </Button>
         </div>
       </form>
 
@@ -107,10 +143,26 @@ export default function AdminServices() {
         {items.map((s, idx) => (
           <div key={s.id} className="rounded-lg border border-border p-4">
             <div className="flex gap-4">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
                 {s.image_url && (
                   <img src={s.image_url} alt="" className="h-full w-full object-cover" />
                 )}
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 opacity-0 transition hover:opacity-100">
+                  {replacingId === s.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-white" />
+                  ) : (
+                    <Upload className="h-5 w-5 text-white" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) replaceImage(s.id, f);
+                    }}
+                  />
+                </label>
               </div>
               <div className="flex-1 grid gap-3 md:grid-cols-2">
                 <div>
@@ -123,20 +175,6 @@ export default function AdminServices() {
                       )
                     }
                     onBlur={(e) => updateField(s.id, { title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Image URL</Label>
-                  <Input
-                    value={s.image_url ?? ""}
-                    onChange={(e) =>
-                      setItems((arr) =>
-                        arr.map((x) =>
-                          x.id === s.id ? { ...x, image_url: e.target.value } : x,
-                        ),
-                      )
-                    }
-                    onBlur={(e) => updateField(s.id, { image_url: e.target.value })}
                   />
                 </div>
                 <div className="md:col-span-2">
