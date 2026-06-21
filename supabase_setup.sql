@@ -125,3 +125,28 @@ create policy "admins write services" on public.services
   for all to authenticated
   using (public.has_role(auth.uid(), 'admin'))
   with check (public.has_role(auth.uid(), 'admin'));
+
+-- 7. STORAGE BUCKET: site-images -----------------------------
+-- Used for services, projects, and other public site imagery.
+insert into storage.buckets (id, name, public)
+values ('site-images', 'site-images', true)
+on conflict (id) do update set public = true;
+
+-- Public read access (bucket is public, but explicit policy is required)
+create policy "public read site-images"
+on storage.objects for select
+using (bucket_id = 'site-images');
+
+-- Only admins can upload/update/delete
+create policy "admins upload site-images"
+on storage.objects for insert to authenticated
+with check (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'));
+
+create policy "admins update site-images"
+on storage.objects for update to authenticated
+using (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'))
+with check (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'));
+
+create policy "admins delete site-images"
+on storage.objects for delete to authenticated
+using (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'));
