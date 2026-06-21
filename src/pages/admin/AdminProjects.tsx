@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface Project {
@@ -15,9 +15,21 @@ interface Project {
   image_url: string | null;
 }
 
+const BUCKET = "site-images";
+
+async function uploadImage(file: File, folder: string): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export default function AdminProjects() {
   const [items, setItems] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
@@ -28,13 +40,23 @@ export default function AdminProjects() {
 
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setUploading(true);
     const fd = new FormData(e.currentTarget);
+    const file = fd.get("image_file") as File;
+    let image_url: string | null = null;
+    try {
+      if (file && file.size > 0) image_url = await uploadImage(file, "projects");
+    } catch (err: any) {
+      setUploading(false);
+      return toast.error(`Upload failed: ${err.message}`);
+    }
     const { error } = await supabase.from("projects").insert({
       title: fd.get("title"),
       location: fd.get("location"),
       description: fd.get("description"),
-      image_url: fd.get("image_url"),
+      image_url,
     });
+    setUploading(false);
     if (error) return toast.error(error.message);
     (e.target as HTMLFormElement).reset();
     toast.success("Project added");
@@ -53,9 +75,13 @@ export default function AdminProjects() {
       <form onSubmit={add} className="mt-6 grid gap-4 rounded-xl border border-border bg-muted/30 p-5 md:grid-cols-2">
         <div><Label>Title</Label><Input name="title" required /></div>
         <div><Label>Location</Label><Input name="location" placeholder="Nairobi, Kenya" /></div>
-        <div className="md:col-span-2"><Label>Image URL</Label><Input name="image_url" placeholder="https://…" /></div>
+        <div className="md:col-span-2"><Label>Image</Label><Input name="image_file" type="file" accept="image/*" /></div>
         <div className="md:col-span-2"><Label>Description</Label><Textarea name="description" rows={3} /></div>
-        <div className="md:col-span-2"><Button type="submit">Add project</Button></div>
+        <div className="md:col-span-2">
+          <Button type="submit" disabled={uploading}>
+            {uploading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</>) : "Add project"}
+          </Button>
+        </div>
       </form>
 
       <div className="mt-8 space-y-3">
