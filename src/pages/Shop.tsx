@@ -122,7 +122,7 @@ export default function Shop() {
                     className="group overflow-hidden rounded-2xl border border-border bg-card transition hover:shadow-lg"
                   >
                     <button onClick={() => openProduct(p)} className="block w-full text-left">
-                      <div className="aspect-[4/3] bg-muted overflow-hidden">
+                      <div className="aspect-[4/3] max-h-44 bg-muted overflow-hidden">
                         {imgs[0] && (
                           <img
                             src={imgs[0]}
@@ -164,7 +164,7 @@ export default function Shop() {
               </DialogHeader>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+                  <div className="aspect-[4/3] max-h-56 overflow-hidden rounded-lg bg-muted">
                     {imagesOf(selected)[activeImg] && (
                       <img
                         src={imagesOf(selected)[activeImg]}
