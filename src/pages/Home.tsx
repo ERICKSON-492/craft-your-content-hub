@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Hammer, Phone, Mail } from "lucide-react";
+import { ArrowRight, ShieldCheck, Hammer, Phone, Mail, ShoppingCart, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
-// 1. Clean, direct imports of your manually added image assets
 import hood from "@/assets/hood-1.png";
 import worktop from "@/assets/worktop-undershelf.png";
 import dishwasher from "@/assets/dishwasher-2.png";
@@ -27,7 +26,6 @@ const defaultServices: Service[] = [
   { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat },
 ];
 
-// 2. Bound cleanly to your physical asset files
 const products = [
   { tag: "FABRICATION", title: "Work Tables // Prep Units", desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.", img: worktop },
   { tag: "HYDRATION", title: "Sinks // Sanitization", desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.", img: sink },
@@ -39,10 +37,62 @@ const products = [
   { tag: "DRAINAGE", title: "Effluent Management Systems", desc: "Solid particle flow interceptors and continuous heavy-gauge drainage solutions.", img: grease },
 ];
 
+// ─── Shop Data ────────────────────────────────────────────────────────────────
+
+const shopCategories = [
+  { label: "Prep & Fabrication", img: worktop, href: "/shop?cat=fabrication", count: 14 },
+  { label: "Sinks & Drainage",   img: sink,    href: "/shop?cat=drainage",    count: 9  },
+  { label: "Ventilation Hoods",  img: hood,    href: "/shop?cat=ventilation",  count: 6  },
+  { label: "Cold Room Systems",  img: coldroom,href: "/shop?cat=cold-room",    count: 8  },
+  { label: "Shelving & Racks",   img: rack,    href: "/shop?cat=storage",      count: 11 },
+  { label: "Warewashing",        img: dishwasher, href: "/shop?cat=warewashing", count: 5 },
+];
+
+const featuredProducts = [
+  {
+    title: "Heavy-Duty Prep Table — 1800mm",
+    tag: "FABRICATION",
+    img: worktop,
+    price: "KES 38,500",
+    originalPrice: "KES 44,000",
+    badge: "Best Seller",
+    href: "/shop/prep-table-1800",
+  },
+  {
+    title: "Triple Bowl Sink Unit",
+    tag: "HYDRATION",
+    img: sink,
+    price: "KES 52,000",
+    originalPrice: null,
+    badge: "New",
+    href: "/shop/triple-sink",
+  },
+  {
+    title: "Wall-Mount Canopy Hood — 1200mm",
+    tag: "VENTILATION",
+    img: hood,
+    price: "KES 67,000",
+    originalPrice: "KES 75,000",
+    badge: "On Sale",
+    href: "/shop/canopy-hood-1200",
+  },
+  {
+    title: "Cold Room Shelving Set — 5 Tier",
+    tag: "CRYOGENIC",
+    img: coldroom,
+    price: "KES 29,800",
+    originalPrice: null,
+    badge: null,
+    href: "/shop/cold-room-shelving",
+  },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Home() {
   const [slide, setSlide] = useState(0);
   const [services, setServices] = useState<Service[]>(defaultServices);
-  
+
   useEffect(() => {
     const id = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 4500);
     return () => clearInterval(id);
@@ -68,7 +118,7 @@ export default function Home() {
 
   return (
     <>
-      {/* HERO */}
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[100vh] min-h-[700px] max-h-[1100px] overflow-hidden bg-slate-900 text-white">
         <div className="absolute inset-0">
           {heroSlides.map((src, i) => (
@@ -133,7 +183,135 @@ export default function Home() {
         </div>
       </section>
 
-      {/* EXPERTISE */}
+      {/* ── SHOP CATEGORIES ───────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-widest text-primary">Shop by category</p>
+            <h2 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">
+              Browse the full range.
+            </h2>
+          </div>
+          <Link
+            to="/shop"
+            className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            View all <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {shopCategories.map((cat) => (
+            <Link
+              key={cat.label}
+              to={cat.href}
+              className="group relative overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-md"
+            >
+              <div className="aspect-square overflow-hidden bg-muted">
+                <img
+                  src={cat.img}
+                  alt={cat.label}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-90 group-hover:brightness-100"
+                />
+              </div>
+              <div className="p-3">
+                <p className="text-xs font-semibold leading-tight">{cat.label}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{cat.count} items</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-6 md:hidden">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            View all categories <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── FEATURED PRODUCTS ─────────────────────────────────────────────── */}
+      <section className="bg-muted/30 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-widest text-primary">Featured products</p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">
+                Ready-to-order builds.
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground max-w-lg">
+                Standard configurations available for fast turnaround. Need custom dimensions? Every product is fully adjustable — just ask.
+              </p>
+            </div>
+            <Link
+              to="/shop"
+              className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            >
+              Shop all <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featuredProducts.map((p) => (
+              <Link
+                key={p.title}
+                to={p.href}
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg"
+              >
+                {/* Badge */}
+                {p.badge && (
+                  <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                    <Tag className="h-2.5 w-2.5" />
+                    {p.badge}
+                  </span>
+                )}
+
+                {/* Image */}
+                <div className="aspect-[4/3] overflow-hidden bg-muted">
+                  <img
+                    src={p.img}
+                    alt={p.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="text-[10px] font-semibold tracking-widest text-primary">{p.tag}</span>
+                  <h3 className="mt-1.5 text-sm font-semibold leading-snug">{p.title}</h3>
+
+                  <div className="mt-auto pt-4 flex items-center justify-between">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-base font-bold">{p.price}</span>
+                      {p.originalPrice && (
+                        <span className="text-xs text-muted-foreground line-through">{p.originalPrice}</span>
+                      )}
+                    </div>
+                    <span className="inline-flex items-center justify-center rounded-lg border border-border bg-background p-2 transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center md:hidden">
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            >
+              Shop all products <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── EXPERTISE ─────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-6 py-24">
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-widest text-primary">Our expertise</p>
@@ -164,7 +342,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* INSIDE THE WORKSHOP */}
+      {/* ── INSIDE THE WORKSHOP ───────────────────────────────────────────── */}
       <section
         className="relative bg-cover bg-center"
         style={{ backgroundImage: `linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.9)), url(${sectionHero})` }}
@@ -196,7 +374,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRODUCTS */}
+      {/* ── PRODUCTS CATALOGUE ────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-6 py-24">
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-widest text-primary">Products</p>
@@ -227,7 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="bg-muted/40">
         <div className="mx-auto max-w-3xl px-6 py-24 text-center">
           <Hammer className="mx-auto h-10 w-10 text-primary" />
