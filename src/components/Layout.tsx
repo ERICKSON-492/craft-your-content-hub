@@ -61,6 +61,18 @@ export default function Layout() {
                 <LogOut className="h-4 w-4" />
               </Button>
             )}
+            <Link
+              to="/cart"
+              aria-label="Cart"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {count > 0 && (
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  {count}
+                </span>
+              )}
+            </Link>
             <Button asChild size="sm" className="hidden sm:inline-flex">
               <Link to="/contact">Get a Quote</Link>
             </Button>
