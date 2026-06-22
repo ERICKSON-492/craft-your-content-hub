@@ -16,6 +16,7 @@ const nav = [
 
 export default function Layout() {
   const { user, isAdmin, signOut } = useAuth();
+  const { count } = useCart();
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
