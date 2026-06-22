@@ -1,12 +1,13 @@
 import { NavLink, Outlet, Link } from "react-router-dom";
-import { LayoutDashboard, Wrench, Package, Hammer, Mail, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Wrench, ShoppingBag, Hammer, Mail, ArrowLeft, ClipboardList } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
   { to: "/admin", label: "Site content", icon: LayoutDashboard, end: true },
   { to: "/admin/services", label: "Services", icon: Wrench },
-  { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/products", label: "Shop", icon: ShoppingBag },
+  { to: "/admin/orders", label: "Orders", icon: ClipboardList },
   { to: "/admin/projects", label: "Projects", icon: Hammer },
   { to: "/admin/messages", label: "Messages", icon: Mail },
 ];

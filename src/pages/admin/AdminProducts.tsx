@@ -6,13 +6,25 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { formatKES } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
   name: string;
   category: string | null;
   description: string | null;
+  price: number;
   image_url: string | null;
+  images: string[] | null;
+}
+
+async function uploadOne(file: File): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from("site-images").upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from("site-images").getPublicUrl(path);
+  return data.publicUrl;
 }
 
 export default function AdminProducts() {
@@ -20,69 +32,49 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  // 1. Load products from the database
   async function load() {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-    setItems(data ?? []);
+    setItems((data as Product[]) ?? []);
     setLoading(false);
   }
-  
-  useEffect(() => { 
-    load(); 
+  useEffect(() => {
+    load();
   }, []);
 
-  // 2. Add product (Handles file upload + DB insert)
   async function add(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setUploading(true);
-    
-    const fd = new FormData(e.currentTarget);
-    const file = fd.get("image_file") as File;
-    let publicUrl = "";
-
-    // Check if an image file was selected
-    if (file && file.size > 0) {
-      // Generate a unique filename using timestamp and random string
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `uploads/${fileName}`;
-
-      // Upload file to your Supabase storage bucket named 'product-images'
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, file);
-
-      if (uploadError) {
+    try {
+      const fd = new FormData(e.currentTarget);
+      const files = fd.getAll("image_files") as File[];
+      const valid = files.filter((f) => f && f.size > 0);
+      if (valid.length === 0) {
         setUploading(false);
-        return toast.error(`File upload failed: ${uploadError.message}`);
+        return toast.error("Please add at least one image");
       }
+      const urls = await Promise.all(valid.map(uploadOne));
 
-      // Get the public URL of the uploaded image file
-      const { data: urlData } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
-        
-      publicUrl = urlData.publicUrl;
+      const { error } = await supabase.from("products").insert({
+        name: fd.get("name"),
+        category: fd.get("category"),
+        description: fd.get("description"),
+        price: Number(fd.get("price") || 0),
+        image_url: urls[0],
+        images: urls,
+      });
+      if (error) throw error;
+
+      (e.target as HTMLFormElement).reset();
+      toast.success("Product added");
+      load();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+    } finally {
+      setUploading(false);
     }
-
-    // Insert the product record into the database table
-    const { error: dbError } = await supabase.from("products").insert({
-      name: fd.get("name"),
-      category: fd.get("category"),
-      description: fd.get("description"),
-      image_url: publicUrl || null, // Saves the generated Supabase URL string
-    });
-
-    setUploading(false);
-
-    if (dbError) return toast.error(dbError.message);
-    
-    (e.target as HTMLFormElement).reset();
-    toast.success("Product added successfully!");
-    load();
   }
 
-  // 3. Remove a product from the database
   async function remove(id: string) {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return toast.error(error.message);
@@ -91,11 +83,13 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold">Products</h1>
-      
-      {/* Product Submission Form */}
-      <form onSubmit={add} className="mt-6 grid gap-4 rounded-xl border border-border bg-muted/30 p-5 md:grid-cols-2">
+    <div>
+      <h1 className="text-2xl font-bold">Shop products</h1>
+
+      <form
+        onSubmit={add}
+        className="mt-6 grid gap-4 rounded-xl border border-border bg-muted/30 p-5 md:grid-cols-2"
+      >
         <div>
           <Label>Name</Label>
           <Input name="name" required />
@@ -104,24 +98,23 @@ export default function AdminProducts() {
           <Label>Category</Label>
           <Input name="category" placeholder="Kitchen, Refrigeration…" />
         </div>
-        
-        {/* Swapped URL Input for a File Input */}
-        <div className="md:col-span-2">
-          <Label>Product Image</Label>
-          <Input name="image_file" type="file" accept="image/*" required />
+        <div>
+          <Label>Price (KES)</Label>
+          <Input name="price" type="number" min="0" step="1" required />
         </div>
-        
+        <div>
+          <Label>Images (select multiple)</Label>
+          <Input name="image_files" type="file" accept="image/*" multiple required />
+        </div>
         <div className="md:col-span-2">
           <Label>Description</Label>
           <Textarea name="description" rows={3} />
         </div>
-        
         <div className="md:col-span-2">
-          <Button type="submit" disabled={uploading} className="w-full md:w-auto">
+          <Button type="submit" disabled={uploading}>
             {uploading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading item...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading…
               </>
             ) : (
               "Add product"
@@ -130,31 +123,34 @@ export default function AdminProducts() {
         </div>
       </form>
 
-      {/* Product List View */}
       <div className="mt-8 space-y-3">
         {loading && <p className="text-muted-foreground">Loading…</p>}
         {!loading && items.length === 0 && <p className="text-muted-foreground">No products yet.</p>}
-        
-        {items.map((p) => (
-          <div key={p.id} className="flex items-center gap-4 rounded-lg border border-border p-3">
-            <div className="h-14 w-14 shrink-0 rounded-md bg-muted overflow-hidden border border-border">
-              {p.image_url && (
-                <img 
-                  src={p.image_url} 
-                  alt={p.name || "Product"} 
-                  className="h-full w-full object-cover" 
-                />
-              )}
+        {items.map((p) => {
+          const imgs = p.images && p.images.length ? p.images : [p.image_url].filter(Boolean);
+          return (
+            <div key={p.id} className="flex items-center gap-4 rounded-lg border border-border p-3">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
+                {imgs[0] && <img src={imgs[0] as string} alt={p.name} className="h-full w-full object-cover" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium">{p.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {p.category || "No category"} · {formatKES(Number(p.price) || 0)} · {imgs.length} image
+                  {imgs.length === 1 ? "" : "s"}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(p.id)}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{p.name}</div>
-              <div className="text-xs text-muted-foreground">{p.category || "No Category"}</div>
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => remove(p.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
