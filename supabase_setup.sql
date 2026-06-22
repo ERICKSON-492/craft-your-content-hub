@@ -150,3 +150,77 @@ with check (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'));
 create policy "admins delete site-images"
 on storage.objects for delete to authenticated
 using (bucket_id = 'site-images' and public.has_role(auth.uid(), 'admin'));
+
+-- ============================================================
+-- 8. ECOMMERCE: products price/images, orders, order_items
+-- ============================================================
+
+alter table public.products
+  add column if not exists price numeric(10,2) not null default 0,
+  add column if not exists images text[] not null default '{}',
+  add column if not exists stock int;
+
+do $$ begin
+  create type public.order_status as enum ('pending','paid','shipped','delivered','cancelled');
+exception when duplicate_object then null; end $$;
+
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  email text not null,
+  full_name text not null,
+  phone text,
+  address1 text not null,
+  address2 text,
+  city text not null,
+  country text not null,
+  postal_code text,
+  notes text,
+  subtotal numeric(10,2) not null default 0,
+  total numeric(10,2) not null default 0,
+  status public.order_status not null default 'pending',
+  created_at timestamptz default now()
+);
+grant insert on public.orders to anon, authenticated;
+grant select on public.orders to anon, authenticated;
+grant update, delete on public.orders to authenticated;
+grant all on public.orders to service_role;
+alter table public.orders enable row level security;
+
+create policy "anyone places order" on public.orders
+  for insert with check (true);
+create policy "owner reads own order" on public.orders
+  for select using (
+    user_id = auth.uid() or public.has_role(auth.uid(), 'admin')
+  );
+create policy "anon reads own order by id" on public.orders
+  for select to anon using (true);
+create policy "admins update orders" on public.orders
+  for update to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
+create policy "admins delete orders" on public.orders
+  for delete to authenticated using (public.has_role(auth.uid(), 'admin'));
+
+create table if not exists public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  product_id uuid references public.products(id) on delete set null,
+  name text not null,
+  unit_price numeric(10,2) not null,
+  quantity int not null check (quantity > 0),
+  image_url text,
+  created_at timestamptz default now()
+);
+grant insert, select on public.order_items to anon, authenticated;
+grant all on public.order_items to service_role;
+alter table public.order_items enable row level security;
+
+create policy "anyone inserts order items" on public.order_items
+  for insert with check (true);
+create policy "anyone reads order items" on public.order_items
+  for select using (true);
+create policy "admins manage order items" on public.order_items
+  for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
