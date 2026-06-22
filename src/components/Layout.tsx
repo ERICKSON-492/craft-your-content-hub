@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { Phone, Mail, MapPin, ShieldCheck, LogOut, Menu, X } from "lucide-react";
+import { Phone, Mail, MapPin, ShieldCheck, LogOut, Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/elite-logo.png";
 
 const nav = [
   { to: "/", label: "Home", end: true },
   { to: "/about", label: "About Us" },
-  { to: "/products", label: "Products" },
+  { to: "/shop", label: "Shop" },
   { to: "/projects", label: "Projects" },
   { to: "/contact", label: "Contacts" },
 ];
