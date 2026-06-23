@@ -45,8 +45,6 @@ export default function Checkout() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const parsed = schema.safeParse(Object.fromEntries(fd.entries()));
     if (!parsed.success) {
