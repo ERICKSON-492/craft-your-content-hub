@@ -82,6 +82,11 @@ export default function Checkout() {
       return toast.error(itemsError.message);
     }
 
+    // Fire-and-forget confirmation email
+    supabase.functions
+      .invoke("send-order-email", { body: { orderId: order.id, kind: "confirmation" } })
+      .catch(() => {});
+
     clear();
     nav(`/order-confirmation/${order.id}`);
   }

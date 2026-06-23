@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { formatKES } from "@/contexts/CartContext";
+import { Mail, Loader2 } from "lucide-react";
 
 const STATUSES = ["pending", "paid", "shipped", "delivered", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -22,6 +24,9 @@ interface Order {
   subtotal: number;
   total: number;
   status: Status;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  last_email_sent_at: string | null;
   created_at: string;
 }
 interface Item {
@@ -46,6 +51,10 @@ export default function AdminOrders() {
   const [selected, setSelected] = useState<Order | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [filter, setFilter] = useState<Status | "all">("all");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [savingTracking, setSavingTracking] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
@@ -58,6 +67,8 @@ export default function AdminOrders() {
 
   async function openOrder(o: Order) {
     setSelected(o);
+    setTrackingNumber(o.tracking_number ?? "");
+    setTrackingUrl(o.tracking_url ?? "");
     const { data } = await supabase.from("order_items").select("*").eq("order_id", o.id);
     setItems((data as Item[]) ?? []);
   }
@@ -65,9 +76,52 @@ export default function AdminOrders() {
   async function updateStatus(id: string, status: Status) {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success(`Order marked ${status}`);
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     if (selected?.id === id) setSelected({ ...selected, status });
+    toast.success(`Order marked ${status} — sending update email…`);
+    const { error: fnErr } = await supabase.functions.invoke("send-order-email", {
+      body: { orderId: id, kind: "status_update" },
+    });
+    if (fnErr) toast.error(`Status saved, but email failed: ${fnErr.message}`);
+    else toast.success("Update email sent");
+  }
+
+  async function saveTracking() {
+    if (!selected) return;
+    setSavingTracking(true);
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        tracking_number: trackingNumber || null,
+        tracking_url: trackingUrl || null,
+      })
+      .eq("id", selected.id);
+    setSavingTracking(false);
+    if (error) return toast.error(error.message);
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === selected.id
+          ? { ...o, tracking_number: trackingNumber || null, tracking_url: trackingUrl || null }
+          : o,
+      ),
+    );
+    setSelected({
+      ...selected,
+      tracking_number: trackingNumber || null,
+      tracking_url: trackingUrl || null,
+    });
+    toast.success("Tracking saved");
+  }
+
+  async function resendEmail(kind: "confirmation" | "status_update") {
+    if (!selected) return;
+    setSendingEmail(true);
+    const { error } = await supabase.functions.invoke("send-order-email", {
+      body: { orderId: selected.id, kind },
+    });
+    setSendingEmail(false);
+    if (error) return toast.error(error.message);
+    toast.success("Email sent");
   }
 
   const visible = filter === "all" ? orders : orders.filter((o) => o.status === filter);
@@ -171,6 +225,43 @@ export default function AdminOrders() {
                         {s}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Tracking</div>
+                  <div className="mt-2 space-y-2">
+                    <Input
+                      placeholder="Tracking number"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Tracking URL (https://…)"
+                      value={trackingUrl}
+                      onChange={(e) => setTrackingUrl(e.target.value)}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" onClick={saveTracking} disabled={savingTracking}>
+                        {savingTracking ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : null}
+                        Save tracking
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => resendEmail("status_update")}
+                        disabled={sendingEmail}
+                      >
+                        <Mail className="mr-1 h-3 w-3" /> Email customer
+                      </Button>
+                    </div>
+                    {selected.last_email_sent_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Last email: {new Date(selected.last_email_sent_at).toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </div>
 

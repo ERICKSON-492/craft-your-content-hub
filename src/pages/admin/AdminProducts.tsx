@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, Pencil, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { formatKES } from "@/contexts/CartContext";
 
@@ -31,6 +31,9 @@ export default function AdminProducts() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -75,11 +78,132 @@ export default function AdminProducts() {
     }
   }
 
+  function startEdit(p: Product) {
+    setEditing(p);
+    setEditImages(p.images && p.images.length ? p.images : p.image_url ? [p.image_url] : []);
+  }
+
+  async function saveEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editing) return;
+    setSavingEdit(true);
+    try {
+      const fd = new FormData(e.currentTarget);
+      const files = (fd.getAll("new_images") as File[]).filter((f) => f && f.size > 0);
+      const uploaded = files.length ? await Promise.all(files.map(uploadOne)) : [];
+      const images = [...editImages, ...uploaded];
+      if (images.length === 0) {
+        setSavingEdit(false);
+        return toast.error("At least one image is required");
+      }
+      const { error } = await supabase
+        .from("products")
+        .update({
+          name: fd.get("name"),
+          category: fd.get("category"),
+          description: fd.get("description"),
+          price: Number(fd.get("price") || 0),
+          image_url: images[0],
+          images,
+        })
+        .eq("id", editing.id);
+      if (error) throw error;
+      toast.success("Product updated");
+      setEditing(null);
+      load();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
   async function remove(id: string) {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return toast.error(error.message);
     setItems((i) => i.filter((p) => p.id !== id));
     toast.success("Product deleted");
+  }
+
+  if (editing) {
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Edit product</h1>
+          <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
+            <X className="mr-1 h-4 w-4" /> Cancel
+          </Button>
+        </div>
+
+        <form
+          onSubmit={saveEdit}
+          className="mt-6 grid gap-4 rounded-xl border border-border bg-muted/30 p-5 md:grid-cols-2"
+        >
+          <div>
+            <Label>Name</Label>
+            <Input name="name" required defaultValue={editing.name} />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <Input name="category" defaultValue={editing.category ?? ""} />
+          </div>
+          <div>
+            <Label>Price (KES)</Label>
+            <Input name="price" type="number" min="0" step="1" required defaultValue={editing.price} />
+          </div>
+          <div>
+            <Label>Add more images (optional)</Label>
+            <Input name="new_images" type="file" accept="image/*" multiple />
+          </div>
+          <div className="md:col-span-2">
+            <Label>Description</Label>
+            <Textarea name="description" rows={3} defaultValue={editing.description ?? ""} />
+          </div>
+
+          <div className="md:col-span-2">
+            <Label>Current images (click × to remove)</Label>
+            <div className="mt-2 flex flex-wrap gap-3">
+              {editImages.map((url, idx) => (
+                <div key={url + idx} className="relative h-20 w-20 overflow-hidden rounded-md border border-border">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setEditImages((arr) => arr.filter((_, i) => i !== idx))}
+                    className="absolute right-0 top-0 rounded-bl-md bg-black/70 px-1 text-xs text-white"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                  {idx === 0 && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 py-0.5 text-center text-[10px] text-white">
+                      main
+                    </div>
+                  )}
+                </div>
+              ))}
+              {editImages.length === 0 && (
+                <p className="text-xs text-muted-foreground">No images. Add new ones above.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="md:col-span-2 flex gap-2">
+            <Button type="submit" disabled={savingEdit}>
+              {savingEdit ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setEditing(null)}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </div>
+    );
   }
 
   return (
@@ -140,11 +264,15 @@ export default function AdminProducts() {
                   {imgs.length === 1 ? "" : "s"}
                 </div>
               </div>
+              <Button variant="ghost" size="icon" onClick={() => startEdit(p)} aria-label="Edit">
+                <Pencil className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => remove(p.id)}
                 className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                aria-label="Delete"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

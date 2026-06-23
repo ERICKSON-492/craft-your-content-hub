@@ -224,3 +224,10 @@ create policy "admins manage order items" on public.order_items
   for all to authenticated
   using (public.has_role(auth.uid(), 'admin'))
   with check (public.has_role(auth.uid(), 'admin'));
+
+-- ============================================================
+-- 7. ORDER TRACKING + EMAIL (append-only, safe to re-run)
+-- ============================================================
+alter table public.orders add column if not exists tracking_number text;
+alter table public.orders add column if not exists tracking_url text;
+alter table public.orders add column if not exists last_email_sent_at timestamptz;
