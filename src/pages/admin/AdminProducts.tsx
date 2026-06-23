@@ -154,6 +154,10 @@ export default function AdminProducts() {
             <Input name="price" type="number" min="0" step="1" required defaultValue={editing.price} />
           </div>
           <div>
+            <Label>Stock (leave blank = unlimited)</Label>
+            <Input name="stock" type="number" min="0" step="1" defaultValue={editing.stock ?? ""} />
+          </div>
+          <div>
             <Label>Add more images (optional)</Label>
             <Input name="new_images" type="file" accept="image/*" multiple />
           </div>
