@@ -45,10 +45,20 @@ export default function Checkout() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const parsed = schema.safeParse(Object.fromEntries(fd.entries()));
     if (!parsed.success) {
       return toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
+    }
+    if (payMethod === "mpesa") {
+      const d = mpesaPhone.replace(/\D/g, "");
+      const ok =
+        (d.startsWith("254") && d.length === 12) ||
+        (d.startsWith("0") && d.length === 10) ||
+        ((d.startsWith("7") || d.startsWith("1")) && d.length === 9);
+      if (!ok) return toast.error("Enter a valid M-Pesa phone (e.g. 0712 345 678)");
     }
     setSubmitting(true);
 
@@ -60,6 +70,8 @@ export default function Checkout() {
         subtotal,
         total: subtotal,
         status: "pending",
+        payment_method: payMethod,
+        mpesa_phone: payMethod === "mpesa" ? mpesaPhone : null,
       })
       .select("id")
       .single();
