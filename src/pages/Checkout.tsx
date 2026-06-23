@@ -194,6 +194,49 @@ export default function Checkout() {
             <span>Total</span>
             <span>{formatKES(subtotal)}</span>
           </div>
+
+          <div className="mt-6 space-y-3">
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">Payment</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPayMethod("mpesa")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                  payMethod === "mpesa"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                M-Pesa
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod("manual")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                  payMethod === "manual"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                Pay on delivery
+              </button>
+            </div>
+            {payMethod === "mpesa" && (
+              <div>
+                <Label>M-Pesa phone</Label>
+                <Input
+                  inputMode="tel"
+                  placeholder="07XX XXX XXX"
+                  value={mpesaPhone}
+                  onChange={(e) => setMpesaPhone(e.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  You'll get an STK prompt on this number to approve payment.
+                </p>
+              </div>
+            )}
+          </div>
+
           <Button type="submit" className="mt-6 w-full" disabled={submitting}>
             {submitting ? (
               <>
