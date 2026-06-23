@@ -14,6 +14,7 @@ interface Product {
   price: number;
   image_url: string | null;
   images: string[] | null;
+  stock: number | null;
 }
 
 export default function Shop() {
@@ -65,6 +66,14 @@ export default function Shop() {
   }
 
   function addToCart(p: Product, q = 1) {
+    if (p.stock !== null && p.stock <= 0) {
+      toast.error(`${p.name} is out of stock`);
+      return;
+    }
+    if (p.stock !== null && q > p.stock) {
+      toast.error(`Only ${p.stock} in stock`);
+      return;
+    }
     const imgs = imagesOf(p);
     add({ productId: p.id, name: p.name, price: Number(p.price) || 0, image: imgs[0] ?? null }, q);
     toast.success(`${p.name} added to cart`);
@@ -137,14 +146,24 @@ export default function Shop() {
                         )}
                         <h3 className="mt-1 text-lg font-semibold">{p.name}</h3>
                         <div className="mt-2 text-base font-semibold">{formatKES(Number(p.price) || 0)}</div>
+                        {p.stock !== null && (
+                          <div className={`mt-1 text-xs ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
+                            {p.stock <= 0 ? "Out of stock" : `${p.stock} in stock`}
+                          </div>
+                        )}
                         {p.description && (
                           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
                         )}
                       </div>
                     </button>
                     <div className="px-5 pb-5">
-                      <Button className="w-full" onClick={() => addToCart(p)}>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Add to cart
+                      <Button
+                        className="w-full"
+                        onClick={() => addToCart(p)}
+                        disabled={p.stock !== null && p.stock <= 0}
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        {p.stock !== null && p.stock <= 0 ? "Out of stock" : "Add to cart"}
                       </Button>
                     </div>
                   </div>
@@ -194,6 +213,11 @@ export default function Shop() {
                     <div className="text-xs uppercase tracking-wider text-primary">{selected.category}</div>
                   )}
                   <div className="mt-2 text-2xl font-bold">{formatKES(Number(selected.price) || 0)}</div>
+                  {selected.stock !== null && (
+                    <div className={`mt-1 text-xs ${selected.stock <= 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                      {selected.stock <= 0 ? "Out of stock" : `${selected.stock} in stock`}
+                    </div>
+                  )}
                   {selected.description && (
                     <p className="mt-4 text-sm text-muted-foreground whitespace-pre-line">
                       {selected.description}
@@ -210,19 +234,25 @@ export default function Shop() {
                       <span className="w-10 text-center text-sm">{qty}</span>
                       <button
                         className="h-9 w-9 inline-flex items-center justify-center"
-                        onClick={() => setQty((q) => q + 1)}
+                        onClick={() =>
+                          setQty((q) =>
+                            selected.stock !== null ? Math.min(selected.stock, q + 1) : q + 1,
+                          )
+                        }
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
                     <Button
                       className="flex-1"
+                      disabled={selected.stock !== null && selected.stock <= 0}
                       onClick={() => {
                         addToCart(selected, qty);
                         setSelected(null);
                       }}
                     >
-                      <ShoppingCart className="mr-2 h-4 w-4" /> Add to cart
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      {selected.stock !== null && selected.stock <= 0 ? "Out of stock" : "Add to cart"}
                     </Button>
                   </div>
                 </div>

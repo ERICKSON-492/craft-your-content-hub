@@ -16,6 +16,7 @@ interface Product {
   price: number;
   image_url: string | null;
   images: string[] | null;
+  stock: number | null;
 }
 
 async function uploadOne(file: File): Promise<string> {
@@ -57,11 +58,13 @@ export default function AdminProducts() {
       }
       const urls = await Promise.all(valid.map(uploadOne));
 
+      const stockRaw = fd.get("stock");
       const { error } = await supabase.from("products").insert({
         name: fd.get("name"),
         category: fd.get("category"),
         description: fd.get("description"),
         price: Number(fd.get("price") || 0),
+        stock: stockRaw === "" || stockRaw === null ? null : Number(stockRaw),
         image_url: urls[0],
         images: urls,
       });
@@ -103,6 +106,7 @@ export default function AdminProducts() {
           category: fd.get("category"),
           description: fd.get("description"),
           price: Number(fd.get("price") || 0),
+          stock: fd.get("stock") === "" || fd.get("stock") === null ? null : Number(fd.get("stock")),
           image_url: images[0],
           images,
         })
@@ -150,6 +154,10 @@ export default function AdminProducts() {
           <div>
             <Label>Price (KES)</Label>
             <Input name="price" type="number" min="0" step="1" required defaultValue={editing.price} />
+          </div>
+          <div>
+            <Label>Stock (leave blank = unlimited)</Label>
+            <Input name="stock" type="number" min="0" step="1" defaultValue={editing.stock ?? ""} />
           </div>
           <div>
             <Label>Add more images (optional)</Label>
@@ -227,6 +235,10 @@ export default function AdminProducts() {
           <Input name="price" type="number" min="0" step="1" required />
         </div>
         <div>
+          <Label>Stock (blank = unlimited)</Label>
+          <Input name="stock" type="number" min="0" step="1" placeholder="e.g. 10" />
+        </div>
+        <div className="md:col-span-2">
           <Label>Images (select multiple)</Label>
           <Input name="image_files" type="file" accept="image/*" multiple required />
         </div>

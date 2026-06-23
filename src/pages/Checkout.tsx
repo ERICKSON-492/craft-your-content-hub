@@ -28,6 +28,9 @@ export default function Checkout() {
   const { user } = useAuth();
   const nav = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [payMethod, setPayMethod] = useState<"mpesa" | "manual">("mpesa");
+  const [mpesaPhone, setMpesaPhone] = useState("");
+  
 
   if (items.length === 0) {
     return (
@@ -47,6 +50,14 @@ export default function Checkout() {
     if (!parsed.success) {
       return toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
     }
+    if (payMethod === "mpesa") {
+      const d = mpesaPhone.replace(/\D/g, "");
+      const ok =
+        (d.startsWith("254") && d.length === 12) ||
+        (d.startsWith("0") && d.length === 10) ||
+        ((d.startsWith("7") || d.startsWith("1")) && d.length === 9);
+      if (!ok) return toast.error("Enter a valid M-Pesa phone (e.g. 0712 345 678)");
+    }
     setSubmitting(true);
 
     const { data: order, error } = await supabase
@@ -57,6 +68,8 @@ export default function Checkout() {
         subtotal,
         total: subtotal,
         status: "pending",
+        payment_method: payMethod,
+        mpesa_phone: payMethod === "mpesa" ? mpesaPhone : null,
       })
       .select("id")
       .single();
@@ -79,6 +92,11 @@ export default function Checkout() {
 
     if (itemsError) {
       setSubmitting(false);
+      // Stock-trigger errors are surfaced here
+      if (/Insufficient stock/i.test(itemsError.message)) {
+        // Best-effort: delete the orphan order so it doesn't clutter admin
+        await supabase.from("orders").delete().eq("id", order.id);
+      }
       return toast.error(itemsError.message);
     }
 
@@ -86,6 +104,27 @@ export default function Checkout() {
     supabase.functions
       .invoke("send-order-email", { body: { orderId: order.id, kind: "confirmation" } })
       .catch(() => {});
+
+    if (payMethod === "mpesa") {
+      const { data: stk, error: stkErr } = await supabase.functions.invoke("mpesa-stk-push", {
+        body: { orderId: order.id, phone: mpesaPhone },
+      });
+      if (stkErr || (stk as { error?: string })?.error) {
+        setSubmitting(false);
+        return toast.error(
+          (stk as { error?: string })?.error ?? stkErr?.message ?? "M-Pesa request failed",
+        );
+      }
+      
+      setSubmitting(false);
+      toast.success("STK push sent. Check your phone to approve.");
+      // Redirect after a moment; confirmation page will reflect status
+      setTimeout(() => {
+        clear();
+        nav(`/order-confirmation/${order.id}`);
+      }, 1500);
+      return;
+    }
 
     clear();
     nav(`/order-confirmation/${order.id}`);
@@ -155,6 +194,49 @@ export default function Checkout() {
             <span>Total</span>
             <span>{formatKES(subtotal)}</span>
           </div>
+
+          <div className="mt-6 space-y-3">
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">Payment</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPayMethod("mpesa")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                  payMethod === "mpesa"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                M-Pesa
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod("manual")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                  payMethod === "manual"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                Pay on delivery
+              </button>
+            </div>
+            {payMethod === "mpesa" && (
+              <div>
+                <Label>M-Pesa phone</Label>
+                <Input
+                  inputMode="tel"
+                  placeholder="07XX XXX XXX"
+                  value={mpesaPhone}
+                  onChange={(e) => setMpesaPhone(e.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  You'll get an STK prompt on this number to approve payment.
+                </p>
+              </div>
+            )}
+          </div>
+
           <Button type="submit" className="mt-6 w-full" disabled={submitting}>
             {submitting ? (
               <>

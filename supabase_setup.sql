@@ -231,3 +231,62 @@ create policy "admins manage order items" on public.order_items
 alter table public.orders add column if not exists tracking_number text;
 alter table public.orders add column if not exists tracking_url text;
 alter table public.orders add column if not exists last_email_sent_at timestamptz;
+
+-- ============================================================
+-- 8. INVENTORY + M-PESA (append-only, safe to re-run)
+-- ============================================================
+
+-- Payment / M-Pesa fields on orders
+alter table public.orders add column if not exists payment_method text;
+alter table public.orders add column if not exists mpesa_phone text;
+alter table public.orders add column if not exists mpesa_checkout_request_id text;
+alter table public.orders add column if not exists mpesa_receipt text;
+alter table public.orders add column if not exists paid_at timestamptz;
+create index if not exists orders_mpesa_checkout_idx
+  on public.orders (mpesa_checkout_request_id);
+
+-- Block order_items when stock is insufficient (stock = NULL means unlimited)
+create or replace function public.check_stock_before_order_item()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  available int;
+  pname text;
+begin
+  if new.product_id is null then
+    return new;
+  end if;
+  select stock, name into available, pname from public.products where id = new.product_id;
+  if available is not null and available < new.quantity then
+    raise exception 'Insufficient stock for %: only % left', coalesce(pname, 'product'), available
+      using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists trg_check_stock on public.order_items;
+create trigger trg_check_stock
+  before insert on public.order_items
+  for each row execute function public.check_stock_before_order_item();
+
+-- Decrement stock when an order transitions into 'paid'
+create or replace function public.decrement_stock_on_paid()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if (old.status is distinct from 'paid') and new.status = 'paid' then
+    update public.products p
+       set stock = greatest(0, p.stock - oi.quantity)
+      from public.order_items oi
+     where oi.order_id = new.id
+       and oi.product_id = p.id
+       and p.stock is not null;
+    if new.paid_at is null then
+      new.paid_at := now();
+    end if;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists trg_decrement_stock on public.orders;
+create trigger trg_decrement_stock
+  before update on public.orders
+  for each row execute function public.decrement_stock_on_paid();

@@ -17,6 +17,8 @@ interface Order {
   postal_code: string | null;
   total: number;
   status: string;
+  payment_method: string | null;
+  mpesa_receipt: string | null;
   created_at: string;
 }
 interface Item {
@@ -35,15 +37,40 @@ export default function OrderConfirmation() {
 
   useEffect(() => {
     if (!id) return;
+    let cancelled = false;
+    let poll: ReturnType<typeof setInterval> | null = null;
     (async () => {
       const [{ data: o }, { data: its }] = await Promise.all([
         supabase.from("orders").select("*").eq("id", id).maybeSingle(),
         supabase.from("order_items").select("*").eq("order_id", id),
       ]);
+      if (cancelled) return;
       setOrder(o as Order | null);
       setItems((its as Item[]) ?? []);
       setLoading(false);
+
+      // Poll for M-Pesa confirmation
+      const ord = o as Order | null;
+      if (ord && ord.payment_method === "mpesa" && ord.status === "pending") {
+        poll = setInterval(async () => {
+          const { data: latest } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+          if (!latest) return;
+          setOrder(latest as Order);
+          if ((latest as Order).status !== "pending" && poll) {
+            clearInterval(poll);
+            poll = null;
+          }
+        }, 3000);
+      }
     })();
+    return () => {
+      cancelled = true;
+      if (poll) clearInterval(poll);
+    };
   }, [id]);
 
   if (loading) return <div className="mx-auto max-w-3xl px-6 py-24 text-muted-foreground">Loading…</div>;
@@ -116,6 +143,15 @@ export default function OrderConfirmation() {
         <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Status</h3>
           <p className="mt-2 text-sm capitalize">{order.status}</p>
+          {order.payment_method === "mpesa" && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {order.status === "pending"
+                ? "Waiting for M-Pesa confirmation… check your phone."
+                : order.mpesa_receipt
+                  ? `M-Pesa receipt: ${order.mpesa_receipt}`
+                  : null}
+            </p>
+          )}
           <Button asChild className="mt-4 w-full">
             <Link to="/shop">Continue shopping</Link>
           </Button>
