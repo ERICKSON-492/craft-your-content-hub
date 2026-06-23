@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { formatKES } from "@/contexts/CartContext";
+import { Mail, Loader2 } from "lucide-react";
 
 const STATUSES = ["pending", "paid", "shipped", "delivered", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
