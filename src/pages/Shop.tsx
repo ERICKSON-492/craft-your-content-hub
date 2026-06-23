@@ -146,14 +146,24 @@ export default function Shop() {
                         )}
                         <h3 className="mt-1 text-lg font-semibold">{p.name}</h3>
                         <div className="mt-2 text-base font-semibold">{formatKES(Number(p.price) || 0)}</div>
+                        {p.stock !== null && (
+                          <div className={`mt-1 text-xs ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
+                            {p.stock <= 0 ? "Out of stock" : `${p.stock} in stock`}
+                          </div>
+                        )}
                         {p.description && (
                           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
                         )}
                       </div>
                     </button>
                     <div className="px-5 pb-5">
-                      <Button className="w-full" onClick={() => addToCart(p)}>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Add to cart
+                      <Button
+                        className="w-full"
+                        onClick={() => addToCart(p)}
+                        disabled={p.stock !== null && p.stock <= 0}
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        {p.stock !== null && p.stock <= 0 ? "Out of stock" : "Add to cart"}
                       </Button>
                     </div>
                   </div>
