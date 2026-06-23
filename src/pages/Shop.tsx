@@ -213,6 +213,11 @@ export default function Shop() {
                     <div className="text-xs uppercase tracking-wider text-primary">{selected.category}</div>
                   )}
                   <div className="mt-2 text-2xl font-bold">{formatKES(Number(selected.price) || 0)}</div>
+                  {selected.stock !== null && (
+                    <div className={`mt-1 text-xs ${selected.stock <= 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                      {selected.stock <= 0 ? "Out of stock" : `${selected.stock} in stock`}
+                    </div>
+                  )}
                   {selected.description && (
                     <p className="mt-4 text-sm text-muted-foreground whitespace-pre-line">
                       {selected.description}
@@ -229,19 +234,25 @@ export default function Shop() {
                       <span className="w-10 text-center text-sm">{qty}</span>
                       <button
                         className="h-9 w-9 inline-flex items-center justify-center"
-                        onClick={() => setQty((q) => q + 1)}
+                        onClick={() =>
+                          setQty((q) =>
+                            selected.stock !== null ? Math.min(selected.stock, q + 1) : q + 1,
+                          )
+                        }
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
                     <Button
                       className="flex-1"
+                      disabled={selected.stock !== null && selected.stock <= 0}
                       onClick={() => {
                         addToCart(selected, qty);
                         setSelected(null);
                       }}
                     >
-                      <ShoppingCart className="mr-2 h-4 w-4" /> Add to cart
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      {selected.stock !== null && selected.stock <= 0 ? "Out of stock" : "Add to cart"}
                     </Button>
                   </div>
                 </div>
