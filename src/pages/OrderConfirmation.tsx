@@ -17,6 +17,8 @@ interface Order {
   postal_code: string | null;
   total: number;
   status: string;
+  payment_method: string | null;
+  mpesa_receipt: string | null;
   created_at: string;
 }
 interface Item {
