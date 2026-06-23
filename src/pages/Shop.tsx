@@ -14,6 +14,7 @@ interface Product {
   price: number;
   image_url: string | null;
   images: string[] | null;
+  stock: number | null;
 }
 
 export default function Shop() {
