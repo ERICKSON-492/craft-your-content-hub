@@ -143,6 +143,15 @@ export default function OrderConfirmation() {
         <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Status</h3>
           <p className="mt-2 text-sm capitalize">{order.status}</p>
+          {order.payment_method === "mpesa" && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {order.status === "pending"
+                ? "Waiting for M-Pesa confirmation… check your phone."
+                : order.mpesa_receipt
+                  ? `M-Pesa receipt: ${order.mpesa_receipt}`
+                  : null}
+            </p>
+          )}
           <Button asChild className="mt-4 w-full">
             <Link to="/shop">Continue shopping</Link>
           </Button>
