@@ -104,6 +104,7 @@ export default function AdminProducts() {
           category: fd.get("category"),
           description: fd.get("description"),
           price: Number(fd.get("price") || 0),
+          stock: fd.get("stock") === "" || fd.get("stock") === null ? null : Number(fd.get("stock")),
           image_url: images[0],
           images,
         })
