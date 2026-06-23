@@ -82,6 +82,11 @@ export default function Checkout() {
 
     if (itemsError) {
       setSubmitting(false);
+      // Stock-trigger errors are surfaced here
+      if (/Insufficient stock/i.test(itemsError.message)) {
+        // Best-effort: delete the orphan order so it doesn't clutter admin
+        await supabase.from("orders").delete().eq("id", order.id);
+      }
       return toast.error(itemsError.message);
     }
 
@@ -89,6 +94,27 @@ export default function Checkout() {
     supabase.functions
       .invoke("send-order-email", { body: { orderId: order.id, kind: "confirmation" } })
       .catch(() => {});
+
+    if (payMethod === "mpesa") {
+      const { data: stk, error: stkErr } = await supabase.functions.invoke("mpesa-stk-push", {
+        body: { orderId: order.id, phone: mpesaPhone },
+      });
+      if (stkErr || (stk as { error?: string })?.error) {
+        setSubmitting(false);
+        return toast.error(
+          (stk as { error?: string })?.error ?? stkErr?.message ?? "M-Pesa request failed",
+        );
+      }
+      setStkSent(order.id);
+      setSubmitting(false);
+      toast.success("STK push sent. Check your phone to approve.");
+      // Redirect after a moment; confirmation page will reflect status
+      setTimeout(() => {
+        clear();
+        nav(`/order-confirmation/${order.id}`);
+      }, 1500);
+      return;
+    }
 
     clear();
     nav(`/order-confirmation/${order.id}`);
