@@ -37,15 +37,40 @@ export default function OrderConfirmation() {
 
   useEffect(() => {
     if (!id) return;
+    let cancelled = false;
+    let poll: ReturnType<typeof setInterval> | null = null;
     (async () => {
       const [{ data: o }, { data: its }] = await Promise.all([
         supabase.from("orders").select("*").eq("id", id).maybeSingle(),
         supabase.from("order_items").select("*").eq("order_id", id),
       ]);
+      if (cancelled) return;
       setOrder(o as Order | null);
       setItems((its as Item[]) ?? []);
       setLoading(false);
+
+      // Poll for M-Pesa confirmation
+      const ord = o as Order | null;
+      if (ord && ord.payment_method === "mpesa" && ord.status === "pending") {
+        poll = setInterval(async () => {
+          const { data: latest } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+          if (!latest) return;
+          setOrder(latest as Order);
+          if ((latest as Order).status !== "pending" && poll) {
+            clearInterval(poll);
+            poll = null;
+          }
+        }, 3000);
+      }
     })();
+    return () => {
+      cancelled = true;
+      if (poll) clearInterval(poll);
+    };
   }, [id]);
 
   if (loading) return <div className="mx-auto max-w-3xl px-6 py-24 text-muted-foreground">Loading…</div>;
