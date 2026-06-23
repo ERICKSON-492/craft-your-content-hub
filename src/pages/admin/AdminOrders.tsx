@@ -229,6 +229,43 @@ export default function AdminOrders() {
                 </div>
 
                 <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Tracking</div>
+                  <div className="mt-2 space-y-2">
+                    <Input
+                      placeholder="Tracking number"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Tracking URL (https://…)"
+                      value={trackingUrl}
+                      onChange={(e) => setTrackingUrl(e.target.value)}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" onClick={saveTracking} disabled={savingTracking}>
+                        {savingTracking ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : null}
+                        Save tracking
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => resendEmail("status_update")}
+                        disabled={sendingEmail}
+                      >
+                        <Mail className="mr-1 h-3 w-3" /> Email customer
+                      </Button>
+                    </div>
+                    {selected.last_email_sent_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Last email: {new Date(selected.last_email_sent_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">Customer</div>
                   <p className="mt-2">
                     {selected.full_name}
