@@ -66,6 +66,14 @@ export default function Shop() {
   }
 
   function addToCart(p: Product, q = 1) {
+    if (p.stock !== null && p.stock <= 0) {
+      toast.error(`${p.name} is out of stock`);
+      return;
+    }
+    if (p.stock !== null && q > p.stock) {
+      toast.error(`Only ${p.stock} in stock`);
+      return;
+    }
     const imgs = imagesOf(p);
     add({ productId: p.id, name: p.name, price: Number(p.price) || 0, image: imgs[0] ?? null }, q);
     toast.success(`${p.name} added to cart`);
