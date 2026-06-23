@@ -235,6 +235,10 @@ export default function AdminProducts() {
           <Input name="price" type="number" min="0" step="1" required />
         </div>
         <div>
+          <Label>Stock (blank = unlimited)</Label>
+          <Input name="stock" type="number" min="0" step="1" placeholder="e.g. 10" />
+        </div>
+        <div className="md:col-span-2">
           <Label>Images (select multiple)</Label>
           <Input name="image_files" type="file" accept="image/*" multiple required />
         </div>
