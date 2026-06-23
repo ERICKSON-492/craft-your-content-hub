@@ -58,11 +58,13 @@ export default function AdminProducts() {
       }
       const urls = await Promise.all(valid.map(uploadOne));
 
+      const stockRaw = fd.get("stock");
       const { error } = await supabase.from("products").insert({
         name: fd.get("name"),
         category: fd.get("category"),
         description: fd.get("description"),
         price: Number(fd.get("price") || 0),
+        stock: stockRaw === "" || stockRaw === null ? null : Number(stockRaw),
         image_url: urls[0],
         images: urls,
       });
