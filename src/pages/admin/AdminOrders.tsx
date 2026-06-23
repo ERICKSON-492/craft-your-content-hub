@@ -51,6 +51,10 @@ export default function AdminOrders() {
   const [selected, setSelected] = useState<Order | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [filter, setFilter] = useState<Status | "all">("all");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [savingTracking, setSavingTracking] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
