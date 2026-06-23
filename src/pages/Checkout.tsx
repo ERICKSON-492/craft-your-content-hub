@@ -28,6 +28,9 @@ export default function Checkout() {
   const { user } = useAuth();
   const nav = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [payMethod, setPayMethod] = useState<"mpesa" | "manual">("mpesa");
+  const [mpesaPhone, setMpesaPhone] = useState("");
+  const [stkSent, setStkSent] = useState<string | null>(null);
 
   if (items.length === 0) {
     return (
