@@ -115,7 +115,7 @@ export default function Checkout() {
           (stk as { error?: string })?.error ?? stkErr?.message ?? "M-Pesa request failed",
         );
       }
-      setStkSent(order.id);
+      
       setSubmitting(false);
       toast.success("STK push sent. Check your phone to approve.");
       // Redirect after a moment; confirmation page will reflect status
