@@ -24,6 +24,9 @@ interface Order {
   subtotal: number;
   total: number;
   status: Status;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  last_email_sent_at: string | null;
   created_at: string;
 }
 interface Item {
