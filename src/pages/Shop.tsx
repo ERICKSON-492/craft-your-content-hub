@@ -122,16 +122,16 @@ export default function Shop() {
                 {grouped[cat].length} item{grouped[cat].length === 1 ? "" : "s"}
               </span>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {grouped[cat].map((p) => {
                 const imgs = imagesOf(p);
                 return (
                   <div
                     key={p.id}
-                    className="group overflow-hidden rounded-2xl border border-border bg-card transition hover:shadow-lg"
+                    className="group overflow-hidden rounded-xl border border-border bg-card transition hover:shadow-md"
                   >
                     <button onClick={() => openProduct(p)} className="block w-full text-left">
-                      <div className="aspect-[4/3] max-h-44 bg-muted overflow-hidden">
+                      <div className="aspect-[4/3] max-h-32 bg-muted overflow-hidden">
                         {imgs[0] && (
                           <img
                             src={imgs[0]}
@@ -140,29 +140,30 @@ export default function Shop() {
                           />
                         )}
                       </div>
-                      <div className="p-5">
+                      <div className="p-3">
                         {p.category && (
-                          <div className="text-xs uppercase tracking-wider text-primary">{p.category}</div>
+                          <div className="text-[10px] uppercase tracking-wider text-primary">{p.category}</div>
                         )}
-                        <h3 className="mt-1 text-lg font-semibold">{p.name}</h3>
-                        <div className="mt-2 text-base font-semibold">{formatKES(Number(p.price) || 0)}</div>
+                        <h3 className="mt-0.5 text-sm font-semibold leading-snug">{p.name}</h3>
+                        <div className="mt-1 text-sm font-semibold">{formatKES(Number(p.price) || 0)}</div>
                         {p.stock !== null && (
-                          <div className={`mt-1 text-xs ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
+                          <div className={`mt-0.5 text-[10px] ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
                             {p.stock <= 0 ? "Out of stock" : `${p.stock} in stock`}
                           </div>
                         )}
                         {p.description && (
-                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.description}</p>
                         )}
                       </div>
                     </button>
-                    <div className="px-5 pb-5">
+                    <div className="px-3 pb-3">
                       <Button
-                        className="w-full"
+                        size="sm"
+                        className="w-full text-xs h-8"
                         onClick={() => addToCart(p)}
                         disabled={p.stock !== null && p.stock <= 0}
                       >
-                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <ShoppingCart className="mr-1.5 h-3 w-3" />
                         {p.stock !== null && p.stock <= 0 ? "Out of stock" : "Add to cart"}
                       </Button>
                     </div>
