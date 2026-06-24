@@ -131,7 +131,7 @@ export default function Shop() {
                     className="group overflow-hidden rounded-xl border border-border bg-card transition hover:shadow-md"
                   >
                     <button onClick={() => openProduct(p)} className="block w-full text-left">
-                      <div className="aspect-[4/3] max-h-32 bg-muted overflow-hidden">
+                      <div className="aspect-[4/3] max-h-24 bg-muted overflow-hidden">
                         {imgs[0] && (
                           <img
                             src={imgs[0]}
@@ -140,26 +140,26 @@ export default function Shop() {
                           />
                         )}
                       </div>
-                      <div className="p-3">
+                      <div className="p-2">
                         {p.category && (
-                          <div className="text-[10px] uppercase tracking-wider text-primary">{p.category}</div>
+                          <div className="text-[9px] uppercase tracking-wider text-primary">{p.category}</div>
                         )}
-                        <h3 className="mt-0.5 text-sm font-semibold leading-snug">{p.name}</h3>
-                        <div className="mt-1 text-sm font-semibold">{formatKES(Number(p.price) || 0)}</div>
+                        <h3 className="mt-0.5 text-xs font-semibold leading-snug">{p.name}</h3>
+                        <div className="mt-0.5 text-xs font-semibold">{formatKES(Number(p.price) || 0)}</div>
                         {p.stock !== null && (
                           <div className={`mt-0.5 text-[10px] ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
                             {p.stock <= 0 ? "Out of stock" : `${p.stock} in stock`}
                           </div>
                         )}
                         {p.description && (
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{p.description}</p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">{p.description}</p>
                         )}
                       </div>
                     </button>
-                    <div className="px-3 pb-3">
+                    <div className="px-2 pb-2">
                       <Button
                         size="sm"
-                        className="w-full text-xs h-8"
+                        className="w-full text-[11px] h-7"
                         onClick={() => addToCart(p)}
                         disabled={p.stock !== null && p.stock <= 0}
                       >
