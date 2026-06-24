@@ -56,6 +56,11 @@ export default function Layout() {
                 </Link>
               </Button>
             )}
+            {!user && (
+              <Button asChild size="sm" variant="outline" className="hidden sm:inline-flex">
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
             {user && (
               <Button size="sm" variant="ghost" onClick={() => signOut()} className="hidden sm:inline-flex">
                 <LogOut className="h-4 w-4" />
@@ -113,6 +118,11 @@ export default function Layout() {
                     <Link to="/admin">
                       <ShieldCheck className="mr-1 h-4 w-4" /> Admin
                     </Link>
+                  </Button>
+                )}
+                {!user && (
+                  <Button asChild size="sm" variant="outline" onClick={() => setOpen(false)}>
+                    <Link to="/login">Login</Link>
                   </Button>
                 )}
                 {user && (
