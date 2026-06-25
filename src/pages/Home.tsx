@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useCart, formatKES } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import { CATEGORIES } from "@/lib/categories";
+
 
 import hood from "@/assets/hood-1.png";
 import worktop from "@/assets/worktop-undershelf.png";
