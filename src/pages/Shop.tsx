@@ -38,10 +38,17 @@ export default function Shop() {
       });
   }, []);
 
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    items.forEach((p) => set.add(p.category?.trim() || "Uncategorized"));
-    return ["All", ...Array.from(set).sort()];
+    // Predefined categories first, then any extra ones from products
+    const defined = CATEGORIES.map((c) => c.name);
+    const set = new Set<string>(defined);
+    items.forEach((p) => {
+      if (p.category?.trim()) set.add(p.category.trim());
+      else set.add("Uncategorized");
+    });
+    return ["All", ...Array.from(set)];
   }, [items]);
 
   const grouped = useMemo(() => {
@@ -53,7 +60,12 @@ export default function Shop() {
     return groups;
   }, [items]);
 
-  const visibleCategories = active === "All" ? Object.keys(grouped).sort() : [active];
+  const visibleCategories =
+    active === "All"
+      ? Object.keys(grouped).sort()
+      : grouped[active]
+        ? [active]
+        : [];
 
   function imagesOf(p: Product): string[] {
     const arr = (p.images && p.images.length ? p.images : [p.image_url]).filter(Boolean) as string[];
