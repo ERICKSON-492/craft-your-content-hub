@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCart, formatKES } from "@/contexts/CartContext";
-import { ShoppingCart, Minus, Plus, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/categories";
 
@@ -39,8 +39,6 @@ export default function Shop() {
   }, []);
 
   const gridRef = useRef<HTMLDivElement | null>(null);
-
-  // categories list kept implicit; we render predefined CATEGORIES tiles
 
   const grouped = useMemo(() => {
     const groups: Record<string, Product[]> = {};
@@ -94,24 +92,20 @@ export default function Shop() {
         engineered in our Nairobi workshop.
       </p>
 
-      {active !== "All" && (
-        <div className="mt-8 flex items-center justify-between">
-          <button
-            onClick={() => setActive("All")}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" /> All categories
-          </button>
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            {grouped[active]?.length ?? 0} item{(grouped[active]?.length ?? 0) === 1 ? "" : "s"}
-          </span>
-        </div>
-      )}
-
-      {!loading && active === "All" && (
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold tracking-tight">Shop by category</h2>
-          <div className="mt-5 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+      {/* Scrollable category pill strip */}
+      {!loading && (
+        <div className="mt-10 -mx-6 px-6 overflow-x-auto scrollbar-none">
+          <div className="flex gap-2 w-max pb-1">
+            <button
+              onClick={() => setActive("All")}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium whitespace-nowrap transition
+                ${active === "All"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                }`}
+            >
+              All
+            </button>
             {CATEGORIES.map((c) => {
               const count = grouped[c.name]?.length ?? 0;
               return (
@@ -123,29 +117,21 @@ export default function Shop() {
                       gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
                     );
                   }}
-                  className="group overflow-hidden rounded-xl border border-border bg-card text-left transition hover:border-primary/60 hover:shadow-md"
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium whitespace-nowrap transition
+                    ${active === c.name
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                    }`}
                 >
-                  <div className="aspect-square overflow-hidden bg-muted">
-                    <img
-                      src={c.image}
-                      alt={c.name}
-                      loading="lazy"
-                      width={512}
-                      height={512}
-                      className="h-full w-full object-cover transition group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="text-sm font-semibold leading-snug">{c.name}</div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      {count} product{count === 1 ? "" : "s"}
-                    </div>
-                  </div>
+                  {c.name}
+                  <span className={`text-[11px] tabular-nums ${active === c.name ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    {count}
+                  </span>
                 </button>
               );
             })}
           </div>
-        </section>
+        </div>
       )}
 
       {loading && <p className="mt-12 text-muted-foreground">Loading…</p>}
