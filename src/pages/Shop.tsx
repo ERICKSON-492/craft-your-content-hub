@@ -40,16 +40,7 @@ export default function Shop() {
 
   const gridRef = useRef<HTMLDivElement | null>(null);
 
-  const categories = useMemo(() => {
-    // Predefined categories first, then any extra ones from products
-    const defined = CATEGORIES.map((c) => c.name);
-    const set = new Set<string>(defined);
-    items.forEach((p) => {
-      if (p.category?.trim()) set.add(p.category.trim());
-      else set.add("Uncategorized");
-    });
-    return ["All", ...Array.from(set)];
-  }, [items]);
+  // categories list kept implicit; we render predefined CATEGORIES tiles
 
   const grouped = useMemo(() => {
     const groups: Record<string, Product[]> = {};
