@@ -157,7 +157,18 @@ export default function AdminProducts() {
           </div>
           <div>
             <Label>Category</Label>
-            <Input name="category" defaultValue={editing.category ?? ""} />
+            <Select name="category" defaultValue={editing.category ?? undefined}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORY_NAMES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Price (KES)</Label>
@@ -236,7 +247,18 @@ export default function AdminProducts() {
         </div>
         <div>
           <Label>Category</Label>
-          <Input name="category" placeholder="Kitchen, Refrigeration…" />
+          <Select name="category">
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_NAMES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label>Price (KES)</Label>
