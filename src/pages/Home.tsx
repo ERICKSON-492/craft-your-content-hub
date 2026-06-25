@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useCart, formatKES } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import { CATEGORIES } from "@/lib/categories";
+
 
 import hood from "@/assets/hood-1.png";
 import worktop from "@/assets/worktop-undershelf.png";
@@ -207,9 +209,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SHOP CATEGORIES ───────────────────────────────────────────────── */}
-      {!shopLoading && shopCategories.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 py-20">
+      {/* ── SHOP CATEGORIES (marquee) ─────────────────────────────────────── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-end justify-between">
             <div>
               <p className="text-sm uppercase tracking-widest text-primary">Shop by category</p>
@@ -224,42 +226,49 @@ export default function Home() {
               View all <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+        </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {shopCategories.map((cat) => {
-              const img = cat.img ?? categoryFallback(cat.label);
+        <div className="marquee-pause group mt-8 overflow-hidden">
+          <div className="animate-marquee flex w-max gap-4 pl-4">
+            {[...CATEGORIES, ...CATEGORIES].map((cat, i) => {
+              const countEntry = shopCategories.find(
+                (c) => c.label.toLowerCase() === cat.name.toLowerCase(),
+              );
               return (
                 <Link
-                  key={cat.label}
-                  to={`/shop?cat=${encodeURIComponent(cat.label)}`}
-                  className="group relative overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-md"
+                  key={`${cat.name}-${i}`}
+                  to={`/shop?cat=${encodeURIComponent(cat.name)}`}
+                  className="group/card relative w-48 shrink-0 overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-md sm:w-56"
                 >
                   <div className="aspect-square overflow-hidden bg-muted">
                     <img
-                      src={img}
-                      alt={cat.label}
+                      src={cat.image}
+                      alt={cat.name}
                       loading="lazy"
-                      className="h-full w-full object-cover brightness-90 transition-transform duration-500 group-hover:scale-105 group-hover:brightness-100"
+                      className="h-full w-full object-cover brightness-90 transition-transform duration-500 group-hover/card:scale-105 group-hover/card:brightness-100"
                     />
                   </div>
                   <div className="p-3">
-                    <p className="text-xs font-semibold leading-tight">{cat.label}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {cat.count} item{cat.count === 1 ? "" : "s"}
-                    </p>
+                    <p className="text-xs font-semibold leading-tight">{cat.name}</p>
+                    {countEntry && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {countEntry.count} item{countEntry.count === 1 ? "" : "s"}
+                      </p>
+                    )}
                   </div>
                 </Link>
               );
             })}
           </div>
+        </div>
 
-          <div className="mt-6 md:hidden">
-            <Link to="/shop" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
-              View all categories <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </section>
-      )}
+        <div className="mx-auto mt-6 max-w-7xl px-6 md:hidden">
+          <Link to="/shop" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+            View all categories <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
 
       {/* ── FEATURED PRODUCTS ─────────────────────────────────────────────── */}
       {!shopLoading && featuredProducts.length > 0 && (
