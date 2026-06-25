@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useCart, formatKES } from "@/contexts/CartContext";
 import { ShoppingCart, Minus, Plus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { CATEGORIES, imageForCategory } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
 
 interface Product {
   id: string;
