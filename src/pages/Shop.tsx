@@ -103,22 +103,58 @@ export default function Shop() {
         engineered in our Nairobi workshop.
       </p>
 
-      {!loading && items.length > 0 && (
-        <div className="mt-10 flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActive(c)}
-              className={`rounded-full border px-4 py-1.5 text-sm transition ${
-                active === c
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+      {active !== "All" && (
+        <div className="mt-8 flex items-center justify-between">
+          <button
+            onClick={() => setActive("All")}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" /> All categories
+          </button>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
+            {grouped[active]?.length ?? 0} item{(grouped[active]?.length ?? 0) === 1 ? "" : "s"}
+          </span>
         </div>
+      )}
+
+      {!loading && active === "All" && (
+        <section className="mt-12">
+          <h2 className="text-xl font-semibold tracking-tight">Shop by category</h2>
+          <div className="mt-5 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+            {CATEGORIES.map((c) => {
+              const count = grouped[c.name]?.length ?? 0;
+              return (
+                <button
+                  key={c.name}
+                  onClick={() => {
+                    setActive(c.name);
+                    requestAnimationFrame(() =>
+                      gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                    );
+                  }}
+                  className="group overflow-hidden rounded-xl border border-border bg-card text-left transition hover:border-primary/60 hover:shadow-md"
+                >
+                  <div className="aspect-square overflow-hidden bg-muted">
+                    <img
+                      src={c.image}
+                      alt={c.name}
+                      loading="lazy"
+                      width={512}
+                      height={512}
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <div className="text-sm font-semibold leading-snug">{c.name}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">
+                      {count} product{count === 1 ? "" : "s"}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {loading && <p className="mt-12 text-muted-foreground">Loading…</p>}
@@ -126,7 +162,10 @@ export default function Shop() {
         <p className="mt-12 text-muted-foreground">No products yet. Add some from the admin panel.</p>
       )}
 
-      <div className="mt-12 space-y-16">
+      <div ref={gridRef} className="mt-12 space-y-16">
+        {active !== "All" && visibleCategories.length === 0 && (
+          <p className="text-muted-foreground">No products in this category yet.</p>
+        )}
         {visibleCategories.map((cat) => (
           <section key={cat}>
             <div className="mb-6 flex items-end justify-between border-b border-border pb-3">
