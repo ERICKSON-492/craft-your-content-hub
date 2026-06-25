@@ -3,10 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Trash2, Loader2, Pencil, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { formatKES } from "@/contexts/CartContext";
+import { CATEGORY_NAMES } from "@/lib/categories";
 
 interface Product {
   id: string;
@@ -149,7 +157,18 @@ export default function AdminProducts() {
           </div>
           <div>
             <Label>Category</Label>
-            <Input name="category" defaultValue={editing.category ?? ""} />
+            <Select name="category" defaultValue={editing.category ?? undefined}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORY_NAMES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Price (KES)</Label>
@@ -228,7 +247,18 @@ export default function AdminProducts() {
         </div>
         <div>
           <Label>Category</Label>
-          <Input name="category" placeholder="Kitchen, Refrigeration…" />
+          <Select name="category">
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_NAMES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label>Price (KES)</Label>
