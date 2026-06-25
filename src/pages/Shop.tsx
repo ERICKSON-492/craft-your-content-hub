@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCart, formatKES } from "@/contexts/CartContext";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
+import { ShoppingCart, Minus, Plus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { CATEGORIES, imageForCategory } from "@/lib/categories";
 
 interface Product {
   id: string;
