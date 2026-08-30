@@ -30,10 +30,17 @@ export default function SEO({
     setMeta("og:description", description, "property");
     setMeta("og:type", type, "property");
     setMeta("og:url", canonicalUrl, "property");
+    setMeta("og:site_name", SITE_NAME, "property");
+    setMeta("og:locale", "en_KE", "property");
     setMeta("og:image", image, "property");
+    setMeta("og:image:alt", `${SITE_NAME} — ${title}`, "property");
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:url", canonicalUrl);
     setMeta("twitter:title", fullTitle);
     setMeta("twitter:description", description);
     setMeta("twitter:image", image);
+    setMeta("twitter:image:alt", `${SITE_NAME} — ${title}`);
+    setMeta("robots", "index, follow, max-image-preview:large");
 
     let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonical) {
