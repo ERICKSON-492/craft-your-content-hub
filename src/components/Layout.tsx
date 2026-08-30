@@ -61,11 +61,11 @@ export default function Layout() {
           </nav>
           <div className="flex items-center gap-2">
             <a
-              href="tel:+254794872338"
+              href="tel:+254718927217"
               className="hidden lg:inline-flex items-center gap-2 text-sm text-muted-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              +254 794 872 338
+              0718 927 217
             </a>
             {user && isAdmin && (
               <Button asChild size="sm" variant="outline" className="hidden sm:inline-flex">
@@ -161,10 +161,10 @@ export default function Layout() {
                   </Button>
                 )}
                 <a
-                  href="tel:+254794872338"
+                  href="tel:+254718927217"
                   className="mt-2 inline-flex items-center gap-2 text-sm text-muted-foreground"
                 >
-                  <Phone className="h-4 w-4 text-primary" /> +254 794 872 338
+                  <Phone className="h-4 w-4 text-primary" /> 0718 927 217
                 </a>
               </div>
             </nav>
@@ -246,14 +246,14 @@ export default function Layout() {
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-primary" />
                 <span>
-                  +254 794 872 338
+                  0718 927 217
                   <br />
-                  +254 706 093 060
+                  0712 213 969
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-primary" />
-                <span>sales@elitestainlesssteelconcepts.co.ke</span>
+                <span>elitestainlesssteelconcepts@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary" />

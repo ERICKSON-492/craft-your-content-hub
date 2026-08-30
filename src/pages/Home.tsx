@@ -563,17 +563,16 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a
-              href="tel:+254794872338"
+              href="tel:+254718927217"
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium"
             >
-              <Phone className="h-4 w-4 text-primary" /> Call +254 794 872 338
+              <Phone className="h-4 w-4 text-primary" /> Call 0718 927 217
             </a>
             <a
-              href="mailto:sales@elitestainlesssteelconcepts.co.ke"
+              href="mailto:elitestainlesssteelconcepts@gmail.com"
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium"
             >
-              <Mail className="h-4 w-4 text-primary" /> Email
-              sales@elitestainlesssteelconcepts.co.ke
+              <Mail className="h-4 w-4 text-primary" /> Email elitestainlesssteelconcepts@gmail.com
             </a>
           </div>
         </div>

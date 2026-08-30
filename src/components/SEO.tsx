@@ -72,8 +72,8 @@ export function LocalBusinessSchema() {
       "@type": "LocalBusiness",
       name: SITE_NAME,
       url: SITE_URL,
-      telephone: "+254794872338",
-      email: "sales@elitestainlesssteelconcepts.co.ke",
+      telephone: "+254718927217",
+      email: "elitestainlesssteelconcepts@gmail.com",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Landies Road, Adjacent to Muthurua Primary",

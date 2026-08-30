@@ -69,25 +69,19 @@ export default function Contact() {
           </p>
           <div className="mt-8 space-y-6">
             <Info icon={<Phone className="h-5 w-5" />} title="Phone">
-              <a href="tel:+254794872338" className="block hover:text-foreground">
-                +254 (0) 794 872 338
+              <a href="tel:+254718927217" className="block hover:text-foreground">
+                0718 927 217
               </a>
-              <a href="tel:+254706093060" className="block hover:text-foreground">
-                +254 (0) 706 093 060
+              <a href="tel:+254712213969" className="block hover:text-foreground">
+                0712 213 969
               </a>
             </Info>
             <Info icon={<Mail className="h-5 w-5" />} title="Email">
               <a
-                href="mailto:sales@elitestainlesssteelconcepts.co.ke"
+                href="mailto:elitestainlesssteelconcepts@gmail.com"
                 className="block hover:text-foreground"
               >
-                sales@elitestainlesssteelconcepts.co.ke
-              </a>
-              <a
-                href="mailto:info@elitestainlesssteelconcepts.co.ke"
-                className="block hover:text-foreground"
-              >
-                info@elitestainlesssteelconcepts.co.ke
+                elitestainlesssteelconcepts@gmail.com
               </a>
             </Info>
             <Info icon={<MapPin className="h-5 w-5" />} title="Location">
@@ -100,6 +94,27 @@ export default function Contact() {
               <p>8:00 AM – 5:30 PM (EAT)</p>
             </Info>
           </div>
+
+          <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <div className="border-b border-border px-5 py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-base font-semibold">Find the workshop</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Landies Road, adjacent to Muthurua Primary
+                  </p>
+                </div>
+                <MapPin className="h-5 w-5 shrink-0 text-primary" />
+              </div>
+            </div>
+            <iframe
+              title="Map showing Elite Stainless Steel Concepts on Landies Road, Nairobi"
+              src="https://www.google.com/maps?q=Landies+Road,+Adjacent+to+Muthurua+Primary,+Nairobi,+Kenya&output=embed"
+              className="h-64 w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
 
         <form
@@ -108,20 +123,36 @@ export default function Contact() {
           className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8"
         >
           <h2 id="contact-form-heading" className="text-2xl font-semibold">
-            Send us a message
+            Send a direct inquiry
           </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Share a few project details and our fabrication team will respond within 24 hours.
+          </p>
           <div className="mt-6 space-y-4">
             <div>
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" required placeholder="Your full name" />
+              <Input
+                id="name"
+                name="name"
+                autoComplete="name"
+                required
+                placeholder="Your full name"
+              />
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" required placeholder="you@company.com" />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="you@company.com"
+              />
             </div>
             <div>
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" placeholder="+254 …" />
+              <Input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="0718 …" />
             </div>
             <div>
               <Label htmlFor="project_type">Project Type</Label>
@@ -150,7 +181,7 @@ export default function Contact() {
               />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? "Sending…" : "Send Message"}
+              {submitting ? "Sending…" : "Send Inquiry"}
             </Button>
           </div>
         </form>
