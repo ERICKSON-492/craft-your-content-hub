@@ -243,21 +243,21 @@ export default function Home() {
           </div>
         </div>
         <div className="relative z-10 mx-auto flex min-h-[720px] max-w-7xl items-center px-6 py-24 lg:min-h-[calc(100vh-4.5rem)] lg:py-28">
-          <div className="max-w-3xl pb-8">
+          <div className="animate-fade-up max-w-3xl pb-8">
             <span className="eyebrow inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-white/85 backdrop-blur-sm">
               <span className="h-2 w-2 rounded-full bg-primary" />
               Nairobi · Kenya · Since 2014
             </span>
-            <h1 className="text-balance mt-7 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] md:text-7xl lg:text-[5.5rem]">
+            <h1 className="animate-fade-up stagger-1 text-balance mt-7 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] md:text-7xl lg:text-[5.5rem]">
               Commercial stainless steel, engineered to last.
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/72 md:text-xl">
+            <p className="animate-fade-up stagger-1 mt-7 max-w-2xl text-lg leading-relaxed text-white/72 md:text-xl">
               We design, fabricate and install commercial stainless steel for kitchens,
               refrigeration, laundry and architectural projects across Kenya — built in-house in 304
               / 316 grade steel.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Button asChild size="lg">
+            <div className="animate-fade-up stagger-2 mt-9 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="animate-light-sweep">
                 <Link to="/contact">
                   Speak to our experts <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -271,7 +271,7 @@ export default function Home() {
                 <Link to="/projects">Explore projects</Link>
               </Button>
             </div>
-            <div className="mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-8 md:gap-12">
+            <div className="animate-fade-up stagger-3 mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-8 md:gap-12">
               {[
                 { k: "10+", v: "Years in trade" },
                 { k: "500+", v: "Custom builds" },
@@ -316,7 +316,7 @@ export default function Home() {
                 <Link
                   key={`${cat.name}-${i}`}
                   to={`/shop?cat=${encodeURIComponent(cat.name)}`}
-                  className="group/card relative w-52 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl sm:w-60"
+                  className="animate-fade-up group/card relative w-52 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl sm:w-60"
                 >
                   <div className="aspect-square overflow-hidden bg-muted">
                     <img
