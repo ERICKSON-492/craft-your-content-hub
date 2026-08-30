@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import SEO from "@/components/SEO";
 
 const projectTypes = [
   "Commercial Kitchen",
@@ -42,10 +43,17 @@ export default function Contact() {
 
   return (
     <>
+      <SEO
+        title="Contact Elite Stainless Steel Concepts"
+        description="Talk to Elite Stainless Steel Concepts about custom commercial kitchens, refrigeration, laundry, and architectural stainless steel fabrication in Kenya."
+        path="/contact"
+      />
       <section className="bg-slate-900 text-white">
         <div className="mx-auto max-w-7xl px-6 py-20">
-          <p className="text-sm uppercase tracking-widest text-primary">Contact Us</p>
-          <h1 className="mt-2 text-5xl font-bold tracking-tight md:text-6xl">Get In Touch</h1>
+          <p className="eyebrow text-primary">Contact Us</p>
+          <h1 className="mt-3 text-balance text-5xl font-semibold tracking-tight md:text-6xl">
+            Get In Touch
+          </h1>
           <p className="mt-4 max-w-2xl text-white/70">
             Have a question or ready to start your next project? Get in touch and let's create
             something amazing together.
@@ -61,12 +69,26 @@ export default function Contact() {
           </p>
           <div className="mt-8 space-y-6">
             <Info icon={<Phone className="h-5 w-5" />} title="Phone">
-              <a href="tel:+254794872338" className="block hover:text-foreground">+254 (0) 794 872 338</a>
-              <a href="tel:+254706093060" className="block hover:text-foreground">+254 (0) 706 093 060</a>
+              <a href="tel:+254794872338" className="block hover:text-foreground">
+                +254 (0) 794 872 338
+              </a>
+              <a href="tel:+254706093060" className="block hover:text-foreground">
+                +254 (0) 706 093 060
+              </a>
             </Info>
             <Info icon={<Mail className="h-5 w-5" />} title="Email">
-              <a href="mailto:sales@elitestainlesssteelconcepts.co.ke" className="block hover:text-foreground">sales@elitestainlesssteelconcepts.co.ke</a>
-              <a href="mailto:info@elitestainlesssteelconcepts.co.ke" className="block hover:text-foreground">info@elitestainlesssteelconcepts.co.ke</a>
+              <a
+                href="mailto:sales@elitestainlesssteelconcepts.co.ke"
+                className="block hover:text-foreground"
+              >
+                sales@elitestainlesssteelconcepts.co.ke
+              </a>
+              <a
+                href="mailto:info@elitestainlesssteelconcepts.co.ke"
+                className="block hover:text-foreground"
+              >
+                info@elitestainlesssteelconcepts.co.ke
+              </a>
             </Info>
             <Info icon={<MapPin className="h-5 w-5" />} title="Location">
               <p>Landies Road</p>
@@ -80,8 +102,14 @@ export default function Contact() {
           </div>
         </div>
 
-        <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-card p-6 md:p-8">
-          <h2 className="text-2xl font-bold">Send us a message</h2>
+        <form
+          onSubmit={onSubmit}
+          aria-labelledby="contact-form-heading"
+          className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8"
+        >
+          <h2 id="contact-form-heading" className="text-2xl font-semibold">
+            Send us a message
+          </h2>
           <div className="mt-6 space-y-4">
             <div>
               <Label htmlFor="name">Name</Label>
@@ -103,13 +131,23 @@ export default function Contact() {
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 defaultValue=""
               >
-                <option value="" disabled>Select a project type</option>
-                {projectTypes.map((t) => <option key={t}>{t}</option>)}
+                <option value="" disabled>
+                  Select a project type
+                </option>
+                {projectTypes.map((t) => (
+                  <option key={t}>{t}</option>
+                ))}
               </select>
             </div>
             <div>
               <Label htmlFor="message">Message</Label>
-              <Textarea id="message" name="message" rows={5} required placeholder="Tell us about your project…" />
+              <Textarea
+                id="message"
+                name="message"
+                rows={5}
+                required
+                placeholder="Tell us about your project…"
+              />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Sending…" : "Send Message"}
@@ -121,7 +159,15 @@ export default function Contact() {
   );
 }
 
-function Info({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Info({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex gap-4">
       <div className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

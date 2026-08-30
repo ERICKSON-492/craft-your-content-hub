@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://elitestainlesssteelconcepts.co.ke/sitemap.xml

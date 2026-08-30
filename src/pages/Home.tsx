@@ -6,7 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { useCart, formatKES } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/categories";
-
+import SEO, { LocalBusinessSchema } from "@/components/SEO";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 import hood from "@/assets/hood-1.png";
 import worktop from "@/assets/worktop-undershelf.png";
@@ -21,20 +22,20 @@ const heroSlides = [hood, worktop, dishwasher, coldroom, sink, rack];
 
 // Fallback image per category name (best-effort match)
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  "fabrication": worktop,
-  "prep": worktop,
-  "sinks": sink,
-  "drainage": sink,
-  "ventilation": hood,
-  "hoods": hood,
+  fabrication: worktop,
+  prep: worktop,
+  sinks: sink,
+  drainage: sink,
+  ventilation: hood,
+  hoods: hood,
   "cold room": coldroom,
-  "cold": coldroom,
-  "shelving": rack,
-  "storage": rack,
-  "warewashing": dishwasher,
-  "dishwasher": dishwasher,
-  "butchery": meat,
-  "trolley": meat,
+  cold: coldroom,
+  shelving: rack,
+  storage: rack,
+  warewashing: dishwasher,
+  dishwasher: dishwasher,
+  butchery: meat,
+  trolley: meat,
 };
 
 function categoryFallback(cat: string): string {
@@ -48,21 +49,76 @@ function categoryFallback(cat: string): string {
 type Service = { title: string; desc: string; image: string };
 
 const defaultServices: Service[] = [
-  { title: "Custom Fabrication", desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.", image: worktop },
-  { title: "Commercial Kitchens", desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.", image: hood },
-  { title: "Railings & Balustrades", desc: "Modern stainless railings designed for safety, durability and architectural appeal.", image: rack },
-  { title: "Industrial Fabrication", desc: "Heavy-duty stainless structures and components built for industrial performance.", image: coldroom },
-  { title: "Custom Installations", desc: "Professional on-site installation ensuring precise fitting and long-term performance.", image: meat },
+  {
+    title: "Custom Fabrication",
+    desc: "Precision stainless fabrication tailored to residential, commercial and industrial needs.",
+    image: worktop,
+  },
+  {
+    title: "Commercial Kitchens",
+    desc: "Durable, hygienic stainless kitchen solutions for hotels, restaurants and food businesses.",
+    image: hood,
+  },
+  {
+    title: "Railings & Balustrades",
+    desc: "Modern stainless railings designed for safety, durability and architectural appeal.",
+    image: rack,
+  },
+  {
+    title: "Industrial Fabrication",
+    desc: "Heavy-duty stainless structures and components built for industrial performance.",
+    image: coldroom,
+  },
+  {
+    title: "Custom Installations",
+    desc: "Professional on-site installation ensuring precise fitting and long-term performance.",
+    image: meat,
+  },
 ];
 
 const products = [
-  { tag: "FABRICATION", title: "Work Tables // Prep Units", desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.", img: worktop },
-  { tag: "HYDRATION", title: "Sinks // Sanitization", desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.", img: sink },
-  { tag: "VENTILATION", title: "Exhaust Systems", desc: "High-velocity architectural canopy hoods engineered to meet strict HVAC extraction and air balancing mandates.", img: hood },
-  { tag: "CONTAINMENT", title: "Shelves & Storage Matrix", desc: "Wall-mounted storage panels, high-clearance freestanding equipment towers, and ventilated racks.", img: rack },
-  { tag: "CRYOGENIC", title: "Cold Room Frameworks", desc: "High-rigidity shelving units optimized for low-temperature airflow circulation and maximum sub-zero hygiene.", img: coldroom },
-  { tag: "WAREWASHING", title: "Warewashing Systems", desc: "Integrated dirty-intake landing stations and high-output clean outfeed table assemblies.", img: dishwasher },
-  { tag: "BUTCHERY", title: "Logistics Trolleys & Rails", desc: "Heavy structural rolling transport solutions and structural ceiling conveyor infrastructure items.", img: meat },
+  {
+    tag: "FABRICATION",
+    title: "Work Tables // Prep Units",
+    desc: "Custom engineered heavy-prep surface stations equipped with targeted undershelves and anti-spill profiles.",
+    img: worktop,
+  },
+  {
+    tag: "HYDRATION",
+    title: "Sinks // Sanitization",
+    desc: "Multi-compartment heavy production washing cells manufactured to withstand extreme daily sanitation cycles.",
+    img: sink,
+  },
+  {
+    tag: "VENTILATION",
+    title: "Exhaust Systems",
+    desc: "High-velocity architectural canopy hoods engineered to meet strict HVAC extraction and air balancing mandates.",
+    img: hood,
+  },
+  {
+    tag: "CONTAINMENT",
+    title: "Shelves & Storage Matrix",
+    desc: "Wall-mounted storage panels, high-clearance freestanding equipment towers, and ventilated racks.",
+    img: rack,
+  },
+  {
+    tag: "CRYOGENIC",
+    title: "Cold Room Frameworks",
+    desc: "High-rigidity shelving units optimized for low-temperature airflow circulation and maximum sub-zero hygiene.",
+    img: coldroom,
+  },
+  {
+    tag: "WAREWASHING",
+    title: "Warewashing Systems",
+    desc: "Integrated dirty-intake landing stations and high-output clean outfeed table assemblies.",
+    img: dishwasher,
+  },
+  {
+    tag: "BUTCHERY",
+    title: "Logistics Trolleys & Rails",
+    desc: "Heavy structural rolling transport solutions and structural ceiling conveyor infrastructure items.",
+    img: meat,
+  },
 ];
 
 interface Product {
@@ -101,7 +157,13 @@ export default function Home() {
       .order("sort_order", { ascending: true })
       .then(({ data }) => {
         if (data && data.length) {
-          setServices(data.map((r: any) => ({ title: r.title, desc: r.description ?? "", image: r.image_url ?? "" })));
+          setServices(
+            data.map((r: any) => ({
+              title: r.title,
+              desc: r.description ?? "",
+              image: r.image_url ?? "",
+            })),
+          );
         }
       });
   }, []);
@@ -144,6 +206,12 @@ export default function Home() {
 
   return (
     <>
+      <SEO
+        title="Commercial Stainless Steel Fabrication in Nairobi"
+        description="Elite Stainless Steel Concepts designs, fabricates, and installs durable stainless steel kitchens, refrigeration, laundry, and architectural solutions across Kenya."
+        path="/"
+      />
+      <LocalBusinessSchema />
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[720px] overflow-hidden bg-[#102a43] text-white lg:min-h-[calc(100vh-4.5rem)]">
         <div className="absolute inset-0">
@@ -153,6 +221,9 @@ export default function Home() {
               src={src}
               alt=""
               className="absolute inset-0 h-full w-full object-cover scale-105 transition-opacity duration-[1200ms] ease-in-out"
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : "low"}
+              decoding="async"
               style={{ opacity: slide === i ? 1 : 0 }}
             />
           ))}
@@ -182,14 +253,21 @@ export default function Home() {
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/72 md:text-xl">
               We design, fabricate and install commercial stainless steel for kitchens,
-              refrigeration, laundry and architectural projects across Kenya — built in-house
-              in 304 / 316 grade steel.
+              refrigeration, laundry and architectural projects across Kenya — built in-house in 304
+              / 316 grade steel.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link to="/contact">Speak to our experts <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to="/contact">
+                  Speak to our experts <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/12">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/30 bg-white/5 text-white hover:bg-white/12"
+              >
                 <Link to="/projects">Explore projects</Link>
               </Button>
             </div>
@@ -263,12 +341,14 @@ export default function Home() {
         </div>
 
         <div className="mx-auto mt-6 max-w-7xl px-6 md:hidden">
-          <Link to="/shop" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
             View all categories <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
-
 
       {/* ── FEATURED PRODUCTS ─────────────────────────────────────────────── */}
       {!shopLoading && featuredProducts.length > 0 && (
@@ -281,7 +361,8 @@ export default function Home() {
                   Ready-to-order builds.
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground max-w-lg">
-                  Standard configurations available for fast turnaround. Need custom dimensions? Every product is fully adjustable — just ask.
+                  Standard configurations available for fast turnaround. Need custom dimensions?
+                  Every product is fully adjustable — just ask.
                 </p>
               </div>
               <Link
@@ -319,15 +400,16 @@ export default function Home() {
                             {p.category}
                           </span>
                         )}
-                        <h3 className="mt-1.5 text-sm font-semibold leading-snug line-clamp-2">{p.name}</h3>
-                        <div className="mt-2 text-base font-bold">{formatKES(Number(p.price) || 0)}</div>
+                        <h3 className="mt-1.5 text-sm font-semibold leading-snug line-clamp-2">
+                          {p.name}
+                        </h3>
+                        <div className="mt-2 text-base font-bold">
+                          {formatKES(Number(p.price) || 0)}
+                        </div>
                       </div>
                     </Link>
                     <div className="mt-auto px-5 pb-5">
-                      <Button
-                        className="w-full"
-                        onClick={() => addToCart(p)}
-                      >
+                      <Button className="w-full" onClick={() => addToCart(p)}>
                         <ShoppingCart className="mr-2 h-4 w-4" /> Add to cart
                       </Button>
                     </div>
@@ -337,7 +419,10 @@ export default function Home() {
             </div>
 
             <div className="mt-8 text-center md:hidden">
-              <Link to="/shop" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">
+              <Link
+                to="/shop"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
                 Shop all products <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -353,18 +438,26 @@ export default function Home() {
             From concept to installation, finished in steel.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Five core practices, one workshop. Every piece is fabricated in-house by craftsmen
-            who understand the demands of commercial service. We work in 304 and 316 grade
-            stainless steel and finish every join, edge and weld for the environment it will
-            live in — wet, hot, cold or seen.
+            Five core practices, one workshop. Every piece is fabricated in-house by craftsmen who
+            understand the demands of commercial service. We work in 304 and 316 grade stainless
+            steel and finish every join, edge and weld for the environment it will live in — wet,
+            hot, cold or seen.
           </p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
-            <div key={s.title} className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg">
+            <div
+              key={s.title}
+              className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg"
+            >
               <div className="aspect-[4/3] overflow-hidden bg-muted">
                 {s.image ? (
-                  <img src={s.image} alt={s.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img
+                    src={s.image}
+                    alt={s.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 ) : null}
               </div>
               <div className="p-6">
@@ -379,7 +472,9 @@ export default function Home() {
       {/* ── INSIDE THE WORKSHOP ───────────────────────────────────────────── */}
       <section
         className="relative bg-cover bg-center"
-        style={{ backgroundImage: `linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.9)), url(${sectionHero})` }}
+        style={{
+          backgroundImage: `linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.9)), url(${sectionHero})`,
+        }}
       >
         <div className="mx-auto grid max-w-7xl gap-12 px-6 py-24 md:grid-cols-2 text-white">
           <div>
@@ -388,8 +483,8 @@ export default function Home() {
               Welded, ground and polished by hand.
             </h2>
             <p className="mt-4 text-white/70">
-              Every fabrication leaves the workshop fully assembled, tested and finished.
-              No site rework. No surprises.
+              Every fabrication leaves the workshop fully assembled, tested and finished. No site
+              rework. No surprises.
             </p>
           </div>
           <ul className="space-y-4">
@@ -399,7 +494,10 @@ export default function Home() {
               "Custom dimensions — no standard sizes",
               "On-site delivery and installation across Kenya",
             ].map((b) => (
-              <li key={b} className="flex items-start gap-3 rounded-xl border border-white/15 bg-white/5 backdrop-blur p-4">
+              <li
+                key={b}
+                className="flex items-start gap-3 rounded-xl border border-white/15 bg-white/5 backdrop-blur p-4"
+              >
                 <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <span>{b}</span>
               </li>
@@ -416,21 +514,32 @@ export default function Home() {
             A workshop catalogue, custom every time.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Below are recurring builds. Send dimensions and we'll quote — or design something
-            new with you.
+            Below are recurring builds. Send dimensions and we'll quote — or design something new
+            with you.
           </p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((p) => (
-            <article key={p.title} className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg">
+            <article
+              key={p.title}
+              className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg"
+            >
               <div className="aspect-[4/3] overflow-hidden bg-muted">
-                <img src={p.img} alt={p.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img
+                  src={p.img}
+                  alt={p.title}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
               <div className="p-5">
                 <div className="text-xs font-semibold tracking-widest text-primary">{p.tag}</div>
                 <h3 className="mt-2 text-lg font-semibold leading-tight">{p.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{p.desc}</p>
-                <Link to="/products" className="mt-4 inline-flex items-center text-sm font-medium text-primary">
+                <Link
+                  to="/products"
+                  className="mt-4 inline-flex items-center text-sm font-medium text-primary"
+                >
                   View Details <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </div>
@@ -439,6 +548,7 @@ export default function Home() {
         </div>
       </section>
 
+      <NewsletterSignup />
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="bg-muted/40">
         <div className="mx-auto max-w-3xl px-6 py-24 text-center">
@@ -448,15 +558,22 @@ export default function Home() {
             Tell us what you're building.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Share dimensions, drawings or a rough idea. We'll come back with a quote and a
-            build plan within 48 hours.
+            Share dimensions, drawings or a rough idea. We'll come back with a quote and a build
+            plan within 48 hours.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a href="tel:+254794872338" className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium">
+            <a
+              href="tel:+254794872338"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium"
+            >
               <Phone className="h-4 w-4 text-primary" /> Call +254 794 872 338
             </a>
-            <a href="mailto:sales@elitestainlesssteelconcepts.co.ke" className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium">
-              <Mail className="h-4 w-4 text-primary" /> Email sales@elitestainlesssteelconcepts.co.ke
+            <a
+              href="mailto:sales@elitestainlesssteelconcepts.co.ke"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium"
+            >
+              <Mail className="h-4 w-4 text-primary" /> Email
+              sales@elitestainlesssteelconcepts.co.ke
             </a>
           </div>
         </div>
