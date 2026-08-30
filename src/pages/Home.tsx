@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/categories";
 import SEO, { LocalBusinessSchema } from "@/components/SEO";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import CustomerTrust from "@/components/CustomerTrust";
 
 import hood from "@/assets/hood-1.png";
 import worktop from "@/assets/worktop-undershelf.png";
@@ -548,6 +549,7 @@ export default function Home() {
         </div>
       </section>
 
+      <CustomerTrust />
       <NewsletterSignup />
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="bg-muted/40">

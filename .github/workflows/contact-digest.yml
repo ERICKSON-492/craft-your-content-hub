@@ -1,0 +1,31 @@
+name: Weekly contact digest
+
+on:
+  schedule:
+    # 08:00 EAT (UTC+3) every Monday.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-contact-digest
+  cancel-in-progress: false
+
+jobs:
+  send-digest:
+    name: Send weekly contact digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Send digest email
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CONTACT_DIGEST_FROM_EMAIL: ${{ secrets.CONTACT_DIGEST_FROM_EMAIL }}
+          CONTACT_DIGEST_TO_EMAIL: ${{ secrets.CONTACT_DIGEST_TO_EMAIL }}
+        run: node .github/scripts/send-contact-digest.mjs
