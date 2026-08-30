@@ -145,7 +145,7 @@ export default function Home() {
   return (
     <>
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative h-[100vh] min-h-[700px] max-h-[1100px] overflow-hidden bg-slate-900 text-white">
+      <section className="relative min-h-[720px] overflow-hidden bg-[#102a43] text-white lg:min-h-[calc(100vh-4.5rem)]">
         <div className="absolute inset-0">
           {heroSlides.map((src, i) => (
             <img
@@ -156,8 +156,8 @@ export default function Home() {
               style={{ opacity: slide === i ? 1 : 0 }}
             />
           ))}
-          <div className="absolute inset-0 bg-slate-900/70" />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-slate-900 to-transparent" />
+          <div className="absolute inset-0 bg-[#102a43]/75" />
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#102a43] via-[#102a43]/40 to-transparent" />
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2">
             {heroSlides.map((_, i) => (
               <button
@@ -171,36 +171,36 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6">
-          <div className="max-w-2xl pt-24 pb-20">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs">
+        <div className="relative z-10 mx-auto flex min-h-[720px] max-w-7xl items-center px-6 py-24 lg:min-h-[calc(100vh-4.5rem)] lg:py-28">
+          <div className="max-w-3xl pb-8">
+            <span className="eyebrow inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-white/85 backdrop-blur-sm">
               <span className="h-2 w-2 rounded-full bg-primary" />
               Nairobi · Kenya · Since 2014
             </span>
-            <h1 className="mt-6 text-5xl font-bold tracking-tight md:text-7xl">
+            <h1 className="text-balance mt-7 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] md:text-7xl lg:text-[5.5rem]">
               Commercial stainless steel, engineered to last.
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-white/75">
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/72 md:text-xl">
               We design, fabricate and install commercial stainless steel for kitchens,
               refrigeration, laundry and architectural projects across Kenya — built in-house
               in 304 / 316 grade steel.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link to="/contact">Speak to our experts <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10">
+              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/12">
                 <Link to="/projects">Explore projects</Link>
               </Button>
             </div>
-            <div className="mt-12 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-8">
+            <div className="mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-8 md:gap-12">
               {[
                 { k: "10+", v: "Years in trade" },
                 { k: "500+", v: "Custom builds" },
                 { k: "304/316", v: "Grade steel" },
               ].map((s) => (
                 <div key={s.v}>
-                  <div className="text-3xl font-bold">{s.k}</div>
+                  <div className="text-3xl font-semibold tracking-tight md:text-4xl">{s.k}</div>
                   <div className="text-xs uppercase tracking-wider text-white/60">{s.v}</div>
                 </div>
               ))}
@@ -210,12 +210,12 @@ export default function Home() {
       </section>
 
       {/* ── SHOP CATEGORIES (marquee) ─────────────────────────────────────── */}
-      <section className="py-20">
+      <section className="surface-grid py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-sm uppercase tracking-widest text-primary">Shop by category</p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">
+              <p className="eyebrow text-primary">Shop by category</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
                 Browse the full range.
               </h2>
             </div>
@@ -238,7 +238,7 @@ export default function Home() {
                 <Link
                   key={`${cat.name}-${i}`}
                   to={`/shop?cat=${encodeURIComponent(cat.name)}`}
-                  className="group/card relative w-48 shrink-0 overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-md sm:w-56"
+                  className="group/card relative w-52 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl sm:w-60"
                 >
                   <div className="aspect-square overflow-hidden bg-muted">
                     <img
@@ -272,12 +272,12 @@ export default function Home() {
 
       {/* ── FEATURED PRODUCTS ─────────────────────────────────────────────── */}
       {!shopLoading && featuredProducts.length > 0 && (
-        <section className="bg-muted/30 py-20">
+        <section className="border-y border-border/60 bg-muted/45 py-24">
           <div className="mx-auto max-w-7xl px-6">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-sm uppercase tracking-widest text-primary">Featured products</p>
-                <h2 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl">
+                <p className="eyebrow text-primary">Featured products</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
                   Ready-to-order builds.
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground max-w-lg">
@@ -298,7 +298,7 @@ export default function Home() {
                 return (
                   <div
                     key={p.id}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary hover:shadow-lg"
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl"
                   >
                     <Link to="/shop" className="block">
                       <div className="aspect-[4/3] overflow-hidden bg-muted">

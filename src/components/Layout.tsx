@@ -20,12 +20,13 @@ export default function Layout() {
   const [open, setOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setOpen(false)}>
-            <img src={logo} alt="Elite Stainless Steel Concepts" className="h-10 w-auto object-contain" />
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 shadow-[0_1px_0_rgba(16,42,67,0.03)] backdrop-blur-xl">
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link to="/" className="group flex items-center gap-3 shrink-0" onClick={() => setOpen(false)}>
+            <img src={logo} alt="Elite Stainless Steel Concepts" className="h-11 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             <span className="hidden sm:flex flex-col leading-tight">
-              <span className="text-sm font-bold tracking-tight">ELITE STAINLESS</span>
+              <span className="text-[0.7rem] font-bold tracking-[0.18em] text-foreground">ELITE STAINLESS</span>
+              <span className="mt-0.5 text-[0.58rem] font-medium tracking-[0.16em] text-muted-foreground">CONCEPTS · NAIROBI</span>
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-7 text-sm">
@@ -35,8 +36,8 @@ export default function Layout() {
                 to={n.to}
                 end={n.end}
                 className={({ isActive }) =>
-                  `transition-colors hover:text-primary ${
-                    isActive ? "text-primary font-medium" : "text-muted-foreground"
+                  `relative py-2 transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:origin-left after:rounded-full after:bg-primary after:transition-transform after:duration-200 hover:text-primary ${
+                    isActive ? "font-semibold text-primary after:scale-x-100" : "text-muted-foreground after:scale-x-0"
                   }`
                 }
               >
@@ -144,22 +145,22 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-slate-900 text-slate-300">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-4">
+      <footer className="bg-[#102a43] text-slate-300">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 md:grid-cols-4">
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-3">
               {/* Cleaned: src={logo} instead of logo.url */}
               <img src={logo} alt="Elite Stainless" className="h-12 w-auto object-contain" />
             </Link>
-            <p className="mt-4 text-sm text-slate-400 leading-relaxed">
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-slate-300/75">
               Premium stainless steel fabrication for commercial kitchens, refrigeration
               systems, laundry facilities, and architectural structures across Kenya.
             </p>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Services</h4>
-            <ul className="mt-4 space-y-2 text-sm">
+            <h4 className="eyebrow text-white/90">Services</h4>
+            <ul className="mt-5 space-y-3 text-sm text-slate-300/75">
               <li><Link to="/products" className="hover:text-primary">Kitchen Fabrications</Link></li>
               <li><Link to="/products" className="hover:text-primary">Refrigeration</Link></li>
               <li><Link to="/products" className="hover:text-primary">Laundry</Link></li>
@@ -168,7 +169,7 @@ export default function Layout() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Company</h4>
+            <h4 className="eyebrow text-white/90">Company</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li><Link to="/about" className="hover:text-primary">About</Link></li>
               <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
@@ -177,8 +178,8 @@ export default function Layout() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Contact</h4>
-            <ul className="mt-4 space-y-3 text-sm">
+            <h4 className="eyebrow text-white/90">Contact</h4>
+            <ul className="mt-5 space-y-4 text-sm text-slate-300/75">
               <li className="flex items-start gap-2"><Phone className="h-4 w-4 mt-0.5 text-primary" /><span>+254 794 872 338<br />+254 706 093 060</span></li>
               <li className="flex items-start gap-2"><Mail className="h-4 w-4 mt-0.5 text-primary" /><span>sales@elitestainlesssteelconcepts.co.ke</span></li>
               <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 text-primary" /><span>Landies Road, Nairobi, Kenya</span></li>
