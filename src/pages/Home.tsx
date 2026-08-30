@@ -18,8 +18,22 @@ import rack from "@/assets/rack-system.png";
 import meat from "@/assets/meat-trolley.png";
 import sink from "@/assets/sink-triple.png";
 import sectionHero from "@/assets/section-hero.jpg";
+import sourceBakery from "@/assets/source-bakery-appliances.jpg";
+import sourceBurners from "@/assets/source-burners-jikos-stoves.jpg";
+import sourceButchery from "@/assets/source-butchery-equipment.jpg";
+import sourceKitchen from "@/assets/source-kitchen-appliances.png";
+import sourceMedical from "@/assets/source-medical-equipment.jpg";
+import sourceStorage from "@/assets/source-storage-shelving.jpg";
 
-const heroSlides = [hood, worktop, dishwasher, coldroom, sink, rack];
+// Use real category photography in the hero so visitors see the workshop's actual work.
+const heroSlides = [
+  sourceKitchen,
+  sourceBakery,
+  sourceBurners,
+  sourceButchery,
+  sourceMedical,
+  sourceStorage,
+];
 
 // Fallback image per category name (best-effort match)
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
@@ -48,6 +62,36 @@ function categoryFallback(cat: string): string {
 }
 
 type Service = { title: string; desc: string; image: string };
+type Project = {
+  title: string;
+  location: string | null;
+  description: string | null;
+  image_url: string | null;
+};
+
+const defaultProjectShowcase: Project[] = [
+  {
+    title: "Commercial kitchen fabrication",
+    location: "Nairobi · Workshop build",
+    description:
+      "Made-to-measure worktops, extraction, prep stations, and service surfaces for demanding food operations.",
+    image_url: sourceKitchen,
+  },
+  {
+    title: "Cold-room and stainless fit-out",
+    location: "Kenya · Custom installation",
+    description:
+      "Durable cold-room support structures and practical stainless details designed around the site workflow.",
+    image_url: sourceStorage,
+  },
+  {
+    title: "Butchery and food-service equipment",
+    location: "Nairobi · Fabricated in-house",
+    description:
+      "Hygienic trolleys, counters, sinks, and equipment built for easy cleaning and reliable daily use.",
+    image_url: sourceButchery,
+  },
+];
 
 const defaultServices: Service[] = [
   {
@@ -141,6 +185,7 @@ export default function Home() {
   const [slide, setSlide] = useState(0);
   const [services, setServices] = useState<Service[]>(defaultServices);
   const [shopItems, setShopItems] = useState<Product[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [shopLoading, setShopLoading] = useState(true);
   const { add } = useCart();
 
@@ -166,6 +211,18 @@ export default function Home() {
             })),
           );
         }
+      });
+  }, []);
+
+  // Fetch published projects for the homepage showcase.
+  useEffect(() => {
+    supabase
+      .from("projects")
+      .select("title,location,description,image_url")
+      .order("created_at", { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        if (data && data.length) setProjects(data as Project[]);
       });
   }, []);
 
@@ -467,6 +524,103 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── CUSTOM FABRICATION + PROJECTS ──────────────────────────────────── */}
+      <section
+        className="surface-grid border-y border-border/60 py-24"
+        aria-labelledby="capabilities-heading"
+      >
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.4fr] lg:items-start">
+            <div>
+              <p className="eyebrow text-primary">Custom fabrication</p>
+              <h2
+                id="capabilities-heading"
+                className="mt-3 text-3xl font-semibold tracking-tight md:text-5xl"
+              >
+                From first measurement to final fit.
+              </h2>
+              <p className="mt-5 max-w-md text-muted-foreground">
+                We fabricate the stainless components that make commercial spaces work
+                better—planned around your equipment, people, and workflow.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-3 text-sm">
+                {[
+                  "Site measurement",
+                  "TIG welding",
+                  "304 / 316 stainless",
+                  "Delivery & installation",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-xl border border-border/70 bg-card px-4 py-3 font-medium shadow-sm"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <Link
+                to="/contact"
+                className="mt-8 inline-flex items-center text-sm font-semibold text-primary hover:underline"
+              >
+                Discuss a custom build <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+            <div>
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="eyebrow text-primary">Past custom projects</p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">
+                    Built for real operations.
+                  </h3>
+                </div>
+                <Link
+                  to="/projects"
+                  className="hidden items-center gap-1.5 text-sm font-medium text-primary hover:underline sm:inline-flex"
+                >
+                  View all <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {(projects.length ? projects : defaultProjectShowcase).map((project) => (
+                  <article
+                    key={project.title}
+                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-muted">
+                      {project.image_url ? (
+                        <img
+                          src={project.image_url}
+                          alt={project.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs uppercase tracking-wider text-muted-foreground">
+                          Project image coming soon
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      {project.location && (
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          {project.location}
+                        </p>
+                      )}
+                      <h4 className="mt-2 font-semibold leading-tight">{project.title}</h4>
+                      {project.description && (
+                        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                          {project.description}
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
