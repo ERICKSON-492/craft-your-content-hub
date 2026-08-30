@@ -3,9 +3,11 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCart, formatKES } from "@/contexts/CartContext";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
+import { Search, ShoppingCart, Minus, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 import { CATEGORIES } from "@/lib/categories";
+import { Input } from "@/components/ui/input";
 
 interface Product {
   id: string;
@@ -22,10 +24,17 @@ export default function Shop() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<string>("All");
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Product | null>(null);
+  const [searchParams] = useSearchParams();
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
   const { add } = useCart();
+
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("cat");
+    if (categoryFromUrl) setActive(categoryFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     supabase
@@ -40,24 +49,34 @@ export default function Shop() {
 
   const gridRef = useRef<HTMLDivElement | null>(null);
 
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return items.filter((p) => {
+      const matchesCategory =
+        active === "All" || (p.category?.trim() || "Uncategorized") === active;
+      const searchableText = [p.name, p.category, p.description]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return matchesCategory && (!normalizedQuery || searchableText.includes(normalizedQuery));
+    });
+  }, [active, items, query]);
+
   const grouped = useMemo(() => {
     const groups: Record<string, Product[]> = {};
-    items.forEach((p) => {
+    filteredItems.forEach((p) => {
       const key = p.category?.trim() || "Uncategorized";
       (groups[key] ||= []).push(p);
     });
     return groups;
-  }, [items]);
+  }, [filteredItems]);
 
-  const visibleCategories =
-    active === "All"
-      ? Object.keys(grouped).sort()
-      : grouped[active]
-        ? [active]
-        : [];
+  const visibleCategories = Object.keys(grouped).sort();
 
   function imagesOf(p: Product): string[] {
-    const arr = (p.images && p.images.length ? p.images : [p.image_url]).filter(Boolean) as string[];
+    const arr = (p.images && p.images.length ? p.images : [p.image_url]).filter(
+      Boolean,
+    ) as string[];
     return arr;
   }
 
@@ -92,6 +111,32 @@ export default function Shop() {
         engineered in our Nairobi workshop.
       </p>
 
+      <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-3 shadow-sm sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search products, categories, or materials…"
+            aria-label="Search products"
+            className="h-11 border-0 bg-transparent pl-10 pr-10 shadow-none focus-visible:ring-0"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear product search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:border-l sm:border-border sm:pl-4">
+          {filteredItems.length} result{filteredItems.length === 1 ? "" : "s"}
+        </div>
+      </div>
+
       {/* Scrollable category pill strip */}
       {!loading && (
         <div className="mt-10 -mx-6 px-6 overflow-x-auto scrollbar-none">
@@ -99,9 +144,10 @@ export default function Shop() {
             <button
               onClick={() => setActive("All")}
               className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium whitespace-nowrap transition
-                ${active === "All"
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                ${
+                  active === "All"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
                 }`}
             >
               All
@@ -118,13 +164,16 @@ export default function Shop() {
                     );
                   }}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium whitespace-nowrap transition
-                    ${active === c.name
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                    ${
+                      active === c.name
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
                     }`}
                 >
                   {c.name}
-                  <span className={`text-[11px] tabular-nums ${active === c.name ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                  <span
+                    className={`text-[11px] tabular-nums ${active === c.name ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                  >
                     {count}
                   </span>
                 </button>
@@ -136,12 +185,30 @@ export default function Shop() {
 
       {loading && <p className="mt-12 text-muted-foreground">Loading…</p>}
       {!loading && items.length === 0 && (
-        <p className="mt-12 text-muted-foreground">No products yet. Add some from the admin panel.</p>
+        <p className="mt-12 text-muted-foreground">
+          No products yet. Add some from the admin panel.
+        </p>
       )}
 
       <div ref={gridRef} className="mt-12 space-y-16">
-        {active !== "All" && visibleCategories.length === 0 && (
-          <p className="text-muted-foreground">No products in this category yet.</p>
+        {!loading && items.length > 0 && filteredItems.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
+            <Search className="mx-auto h-8 w-8 text-muted-foreground" />
+            <h2 className="mt-4 text-xl font-semibold">No matching products</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              Try a different search term or clear the current filters to browse the full catalogue.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-5"
+              onClick={() => {
+                setQuery("");
+                setActive("All");
+              }}
+            >
+              Clear filters
+            </Button>
+          </div>
         )}
         {visibleCategories.map((cat) => (
           <section key={cat}>
@@ -171,17 +238,25 @@ export default function Shop() {
                       </div>
                       <div className="p-2">
                         {p.category && (
-                          <div className="text-[9px] uppercase tracking-wider text-primary">{p.category}</div>
+                          <div className="text-[9px] uppercase tracking-wider text-primary">
+                            {p.category}
+                          </div>
                         )}
                         <h3 className="mt-0.5 text-xs font-semibold leading-snug">{p.name}</h3>
-                        <div className="mt-0.5 text-xs font-semibold">{formatKES(Number(p.price) || 0)}</div>
+                        <div className="mt-0.5 text-xs font-semibold">
+                          {formatKES(Number(p.price) || 0)}
+                        </div>
                         {p.stock !== null && (
-                          <div className={`mt-0.5 text-[10px] ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}>
+                          <div
+                            className={`mt-0.5 text-[10px] ${p.stock <= 0 ? "text-destructive" : p.stock < 5 ? "text-amber-600" : "text-muted-foreground"}`}
+                          >
                             {p.stock <= 0 ? "Out of stock" : `${p.stock} in stock`}
                           </div>
                         )}
                         {p.description && (
-                          <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">{p.description}</p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
+                            {p.description}
+                          </p>
                         )}
                       </div>
                     </button>
@@ -240,11 +315,17 @@ export default function Shop() {
                 </div>
                 <div>
                   {selected.category && (
-                    <div className="text-xs uppercase tracking-wider text-primary">{selected.category}</div>
+                    <div className="text-xs uppercase tracking-wider text-primary">
+                      {selected.category}
+                    </div>
                   )}
-                  <div className="mt-2 text-2xl font-bold">{formatKES(Number(selected.price) || 0)}</div>
+                  <div className="mt-2 text-2xl font-bold">
+                    {formatKES(Number(selected.price) || 0)}
+                  </div>
                   {selected.stock !== null && (
-                    <div className={`mt-1 text-xs ${selected.stock <= 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                    <div
+                      className={`mt-1 text-xs ${selected.stock <= 0 ? "text-destructive" : "text-muted-foreground"}`}
+                    >
                       {selected.stock <= 0 ? "Out of stock" : `${selected.stock} in stock`}
                     </div>
                   )}
@@ -282,7 +363,9 @@ export default function Shop() {
                       }}
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
-                      {selected.stock !== null && selected.stock <= 0 ? "Out of stock" : "Add to cart"}
+                      {selected.stock !== null && selected.stock <= 0
+                        ? "Out of stock"
+                        : "Add to cart"}
                     </Button>
                   </div>
                 </div>
