@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { Phone, Mail, MapPin, ShieldCheck, LogOut, Menu, X, ShoppingCart } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  ShieldCheck,
+  LogOut,
+  Menu,
+  X,
+  ShoppingCart,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -269,6 +279,17 @@ export default function Layout() {
           </div>
         </div>
       </footer>
+
+      <a
+        href="https://wa.me/254718927217?text=Hello%20Elite%20Stainless%20Steel%20Concepts%2C%20I%27d%20like%20to%20discuss%20a%20fabrication%20project."
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat with Elite Stainless Steel Concepts on WhatsApp"
+        className="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#1fa855] text-white shadow-[0_12px_28px_rgba(31,168,85,0.3)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#188f48] hover:shadow-[0_16px_32px_rgba(31,168,85,0.38)] focus-visible:outline-white sm:bottom-7 sm:right-7"
+      >
+        <MessageCircle className="h-7 w-7" aria-hidden="true" />
+        <span className="sr-only">Chat on WhatsApp</span>
+      </a>
     </div>
   );
 }
